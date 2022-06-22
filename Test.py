@@ -1,7 +1,9 @@
-import numpy as np
 import matplotlib.pyplot as plt
 from matplotlib.widgets import Slider, Button
+import numpy as np
 import math
+
+from pyparsing import line
 def drawShape(Xk: np.ndarray,numCircles: int, mult: int = 0):
     N = len(Xk)
     numSamples = mult*N
@@ -31,27 +33,33 @@ def upscaleShape(shape, mult: int = 2):
 def polar2imag(shape):
     return np.array([shape[0][i] + 1j*shape[1][i] for i in range(shape.shape[1])])
 
-maxCircles = 40
+global shapeK, shapeL, originalShape, originalShapeComplex
 shapeK: np.ndarray = np.transpose(np.array([[-.5,-1],[-.5,0],[-.5,1],[0,1],[0,.5],[.5,1],[1,1],[0,0],[1,-1],[.5,-1],[0,-.5],[0,-1]])) #K
 shapeL: np.ndarray = np.transpose(np.array([[-1,-1],[-1,0],[-1,1],[0,1],[0,0],[1,0],[1,-1],[0,-1]])) #L
+shapeNoise: np.ndarray = np.transpose(np.array([2*[np.random.rand()*math.cos(i),np.random.rand()*math.sin(i)] for i in np.linspace(0,2*np.pi,20)]))
+originalShape: np.ndarray = shapeNoise
 
-originalShape: np.ndarray = shapeL
 originalShapeComplex: np.ndarray = np.array([originalShape[0][i] + 1j*originalShape[1][i] for i in range(originalShape.shape[1])])
 
-fig, ax = plt.subplots()
+fig, [[axShape ,axFFT],[axWaveForm,ax2]] = plt.subplots(2,2)
 
-lineShape, = ax.plot(originalShape[0], originalShape[1])
+lineShape, = axShape.plot(originalShape[0], originalShape[1])
 lineShape.set_linestyle("none")
 lineShape.set_marker("o")
 lineShape.set_c("orange")
 
-lineDrawing, = ax.plot([], [])
+lineDrawing, = axShape.plot([], [])
 lineDrawing.set_c("b")
 
 
-plt.xlim([-3, 3])
-plt.ylim([-3, 3])
+axShape.set_xlim([-3, 3])
+axShape.set_ylim([-3, 3])
 
+lineWaveform, = axWaveForm.plot([], [])
+
+
+axFFT.stem([0])
+axFFT.set_xlim([-.5, .5])
 plt.subplots_adjust(bottom=0.25)
 
 axCircle = plt.axes([0.25, 0.12, 0.65, 0.03])
@@ -60,7 +68,7 @@ circlesSlider =  Slider(
     label='Circle',
     valmin = 0,
     valstep = 1,
-    valmax = maxCircles,
+    valmax = 40,
     valinit = 0
 )
 
@@ -89,16 +97,25 @@ upscaleSlider =  Slider(
     label= 'Upscale',
     valmin= 1,
     valstep = 1,
-    valmax = 5,
+    valmax = 25,
     valinit = 1
 )
 
 shapeChangeAx = plt.axes([0.05, 0.1, 0.1, 0.04])
 button = Button(shapeChangeAx, 'Shape', hovercolor='0.975')
 
+def clicked(event):
+    global originalShape, shapeL, shapeK, originalShapeComplex
+    if np.array_equal(originalShape,shapeL):
+        originalShape = shapeK    
+    else:
+        originalShape = shapeL   
+    originalShapeComplex = np.array([originalShape[0][i] + 1j*originalShape[1][i] for i in range(originalShape.shape[1])])
+
 def update(val):
     shapeTransformed = upscaleShape(polar2imag(shapeLinearTransformation(originalShapeComplex, angleSlider.val, 0)),upscaleSlider.val)
-    newShapeComplex: np.ndarray = drawShape(np.fft.fft(shapeTransformed), circlesSlider.val, resSlider.val)
+    shapeFFT: np.ndarray  = np.fft.fft(shapeTransformed)
+    newShapeComplex: np.ndarray = drawShape(shapeFFT, circlesSlider.val, resSlider.val)
 
     lineDrawing.set_xdata(newShapeComplex.real)
     lineDrawing.set_ydata(newShapeComplex.imag)
@@ -107,9 +124,23 @@ def update(val):
     lineShape.set_ydata(shapeTransformed.imag)
     circlesSlider.valmax = shapeTransformed.shape[0]
 
+    lineWaveform.set_ydata(np.abs(shapeTransformed))
+    lineWaveform.set_xdata(range(shapeTransformed.shape[0]))
+    axWaveForm.set_xlim([0,shapeTransformed.shape[0]])
+    axWaveForm.set_ylim([0,np.amax(np.abs(shapeTransformed))])
+
+    freq = np.fft.fftfreq(shapeFFT.shape[0])
+    dictFFT:list[dict] = [{"coefficents":shapeFFT[i] ,"freq": freq[i]} for i in range(shapeFFT.shape[0])]
+    dictFFT.sort(key = lambda a: a["freq"])
+    axFFT.cla()
+    axFFT.stem([dictFFT[i]["freq"] for i in range(len(dictFFT))], \
+               [(1/shapeFFT.shape[0])*np.abs(dictFFT[i]["coefficents"]) for i in range(len(dictFFT))])
+   
+    axFFT.set_ylim([0,(1/shapeFFT.shape[0])*np.amax(np.abs(shapeFFT))])
 
 circlesSlider.on_changed(update)
 angleSlider.on_changed(update)
 resSlider.on_changed(update)
 upscaleSlider.on_changed(update)
+button.on_clicked(clicked)
 plt.show()
