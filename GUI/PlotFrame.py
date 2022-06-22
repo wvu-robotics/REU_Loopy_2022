@@ -31,6 +31,7 @@ class PlotFrame(tk.Frame):
 ##Add to window
         self.grid(row=0, columnspan=60, padx=2, pady=0)
 
+# does not work rn 6/22/22
     def UpdateGoalPlot(self, Goal):
         self.canvasG.get_tk_widget().delete()
         ##how to delete previous plot
