@@ -1,6 +1,6 @@
+import numpy as np
 import matplotlib.pyplot as plt
 from matplotlib.widgets import Slider, Button
-import numpy as np
 import math
 def drawShape(Xk: np.ndarray,numCircles: int, mult: int = 0):
     N = len(Xk)
