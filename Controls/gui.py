@@ -13,7 +13,6 @@ LOAD_WARNING_THRESHOLD = 700 # 70%
 
 
 loopy = Loopy.Loopy(NUMBER_OF_AGENTS)
-loopy.torque_off_all_agents()
 
 
 window = tk.Tk()
@@ -126,11 +125,11 @@ ControlBtn= tk.Button(window,activebackground='navy blue', bg='#4863A0', fg='whi
 ControlBtn.grid(row=2, column=0, columnspan=4)
 
 ##Reboot Button
-def reboot():
+def torque_on():
     loopy.torque_on_all_agents()
     UpdateTorqueLabels()
     UpdateLights()
-RebootBtn= tk.Button(window,activebackground='navy blue', bg='#4863A0', fg='white', width=6, height=1, text='Reboot', command=reboot)
+RebootBtn= tk.Button(window,activebackground='navy blue', bg='#4863A0', fg='white', width=6, height=1, text='Torque On', command=torque_on)
 RebootBtn.grid(row=2, column=2, columnspan=4)
 
 ##Flexible Mode Button
@@ -138,7 +137,7 @@ RebootBtn.grid(row=2, column=2, columnspan=4)
 Loopy must be in flexible mode to recieve physical human input (to allow human to move it, changing the measurable load)
 '''
 FlexibleBtn = tk.Button(window,activebackground='navy blue', bg='#4863A0', fg='white', width=6, height=1, text='Go Flexible', command=loopy.torque_off_all_agents)
-FlexibleBtn.grid(row=3, column=2, columnspan=4)
+FlexibleBtn.grid(row=2, column=3, columnspan=4)
 
 ##Manual Control of Goal Angles
 #Agent Dropdown Selection
@@ -179,6 +178,7 @@ SetAngleLabel.grid(column=28, row=3, columnspan=4)
 #Set Angle to Agent
 def SetAngleToAgent():
     loopy.agents[AgentClicked.get()].desired_angle = AngleChosen.get()
+    loopy.agents[AgentClicked.get()].set_goal_angle(AngleChosen.get())
     UpdateGoalAngles()
     AngleChosen.set(0)
     AgentClicked.set(0)

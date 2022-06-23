@@ -121,7 +121,7 @@ class Agent:
             90 degrees is 1024
             (positions are measured by the dynamixels counterclockwise with left being position 0)
         """
-        return float(int(goal_angle)) * DXL_MAXIMUM_POSITION_VALUE / float(int(360))
+        return int(goal_angle * DXL_MAXIMUM_POSITION_VALUE / 360)
 
 
     def set_goal_angle( self, angle_in_degrees ):
