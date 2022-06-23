@@ -122,7 +122,8 @@ ControlBtn.grid(row=2, column=0, columnspan=4)
 def reboot():
     for i in AgentList:
         i.torque = 1 ## needs to actually call Nate's turn torque on function and re-read the servo's torque value
-        UpdateLights()
+    UpdateLights()
+    UpdateTorqueAngles()
 RebootBtn= tk.Button(window,activebackground='navy blue', bg='#4863A0', fg='white', width=6, height=1, text='Reboot', command=reboot)
 RebootBtn.grid(row=2, column=2, columnspan=4)
 
