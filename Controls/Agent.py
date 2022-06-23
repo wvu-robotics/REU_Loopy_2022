@@ -31,6 +31,7 @@ class Agent:
         self.packet_handler = Protocol2PacketHandler()
         self.port_handler = self.get_port(); self.open_port()
         self.desired_angle = "000"
+        self.torque_on_off = False 
 
 
 
@@ -149,9 +150,11 @@ class Agent:
         if state == "on":
             print("Enabling Torque for: " + self.name)
             packet_handler.write1ByteTxRx( self.port_handler , self.id, ADDR_TORQUE_ENABLE, TORQUE_ENABLE)
+            self.torque_on_off = True
         elif state == "off":
             print("Disabling Torque for: " + self.name)
             packet_handler.write1ByteTxRx( self.port_handler, self.id, ADDR_TORQUE_ENABLE, TORQUE_DISABLE)
+            self.torque_on_off = False
         else:
             print("Error: Invalid torque state!")
 

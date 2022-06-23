@@ -43,29 +43,24 @@ def points_from_angles(AngleList):
 
 PlotsFrame = PlotFrame.PlotFrame(window, points_from_angles(CurrentAngleList).__getitem__(0),points_from_angles(CurrentAngleList).__getitem__(1))
 
-
-##agent status lights/angles
-    ##read Agent State
-def AgentTorque(i):
-    if loopy.agents[i].get_present_load() == 0:
-        return 'off'
-    elif abs(loopy.agents[i].get_present_load()) < LOAD_WARNING_THRESHOLD:
-        return 'good'
-    else:
-        return 'high'
-
 # Display Agent Status 'Lights'
 def UpdateLights():
     for i in range(36):
         light_canvas = tk.Canvas(window, width=30, height=30, background='light blue', highlightthickness=0)
         my_oval = light_canvas.create_oval(13, 13, 26, 26)  # Create a circle on the Canvas
         # lights on/off
-        if AgentTorque(i) == 'good':
+
+        # if loopy.agents[i].get_present_load() == 0:
+            # light_canvas.itemconfig(my_oval, fill='light grey')
+
+        # elif abs(loopy.agents[i].get_present_load()) < LOAD_WARNING_THRESHOLD:
+        if loopy.agents[i].torque_on_off == True:
             light_canvas.itemconfig(my_oval, fill='light green')
-        elif AgentTorque(i) == 'off':
-            light_canvas.itemconfig(my_oval, fill='light grey')
-        elif AgentTorque(i) == 'high':
+
+        # else:
+        elif loopy.agents[i].torque_on_off == False:
             light_canvas.itemconfig(my_oval, fill='red')
+
         light_canvas.grid(column=i, row=26)
 UpdateLights()
 
@@ -124,6 +119,11 @@ def control():
 ControlBtn= tk.Button(window,activebackground='navy blue', bg='#4863A0', fg='white', width=6, height=1, text='Control', command=control)
 ControlBtn.grid(row=2, column=0, columnspan=4)
 
+def torque_off():
+    loopy.torque_off_all_agents()
+    UpdateTorqueLabels()
+    UpdateLights()
+
 ##Reboot Button
 def torque_on():
     loopy.torque_on_all_agents()
@@ -136,8 +136,8 @@ RebootBtn.grid(row=2, column=2, columnspan=4)
 '''
 Loopy must be in flexible mode to recieve physical human input (to allow human to move it, changing the measurable load)
 '''
-FlexibleBtn = tk.Button(window,activebackground='navy blue', bg='#4863A0', fg='white', width=6, height=1, text='Go Flexible', command=loopy.torque_off_all_agents)
-FlexibleBtn.grid(row=2, column=3, columnspan=4)
+FlexibleBtn = tk.Button(window,activebackground='navy blue', bg='#4863A0', fg='white', width=6, height=1, text='Go Flexible', command=torque_off)
+FlexibleBtn.grid(row=2, column=4, columnspan=4)
 
 ##Manual Control of Goal Angles
 #Agent Dropdown Selection

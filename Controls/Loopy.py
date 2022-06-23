@@ -20,9 +20,10 @@ class Loopy:
                 current_agents - list of instances of Agents created based on given id values 
         """
         current_agents = []
+        print("Start making agents")
         for id in range(self.agent_count):
-            print("Making agent #" + str(id))
             current_agents.append(Agent(id))
+        print("End making agents")
             
 
         self.initialized = True
@@ -40,7 +41,6 @@ class Loopy:
         """
         for id in range(self.agent_count):
             self.agents[id].torque_control("off")
-            self.agents[id].close_port()
 
     def torque_on_all_agents(self):
         """
