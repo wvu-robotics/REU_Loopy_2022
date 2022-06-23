@@ -15,7 +15,7 @@ TORQUE_ENABLE = 1
 TORQUE_DISABLE = 0
 ADDR_TORQUE_ENABLE = 64
 
-ADDR_PRESENT_LOAD = 126
+
 ADDR_GOAL_POSITION = 116
 ADDR_PRESENT_POSITION = 132 
 DXL_MINIMUM_POSITION_VALUE  = 695       
@@ -30,8 +30,6 @@ class Agent:
         self.id = id
         self.packet_handler = Protocol2PacketHandler()
         self.port_handler = self.get_port(); self.open_port()
-        self.desired_angle = "000"
-
 
 
     def __str__(self):
@@ -167,32 +165,6 @@ class Agent:
         """
         recieved_packet = self.packet_handler.read2ByteTxRx(self.port_handler, self.id, ADDR_PRESENT_POSITION)
         return int(recieved_packet[0])
-
-
-    def set_desired_angle(self, desired_angle):
-        """
-        Sets the desired angle of an Agent   
-
-        Parameters:
-            desired_angle 
-        Returns:
-            None
-        """
-        self.desired_angle = desired_angle
-
-    def get_present_load(self):
-        """
-        Gets the load of an Agent's dynamixel   
-
-        Parameters:
-            None
-        Returns:
-            load value for an agent's dynamixel as a percentage 
-        """
-        recieved_packet = self.packet_handler.read2ByteTxRx(self.port_handler, self.id, ADDR_PRESENT_LOAD)
-        return int(recieved_packet[0])
-
-
 
 
 
