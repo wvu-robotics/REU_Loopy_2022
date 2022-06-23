@@ -1,7 +1,7 @@
 import random
 
 def TourqeState(Agent):
-    Agent.state = int(random.randrange(-1,100)) ##change to actual range later - 0 low/off grey, 1 med/good green, 2 high/danger red
+    Agent.state = int(random.randrange(-1,100)) 
      ## call Nate's function that reads in load, adjust to be out of 100
 def GoalAngle(Agent):
     Agent.goal = int(random.randrange(0,359))
