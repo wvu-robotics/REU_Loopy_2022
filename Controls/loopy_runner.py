@@ -1,10 +1,12 @@
 from time import sleep
-from Controls.Loopy import *
+import Loopy
 
 NUMBER_OF_AGENTS = 36
 
 
-loopy = Loopy(NUMBER_OF_AGENTS)
+loopy = Loopy.Loopy(NUMBER_OF_AGENTS)
+
+
 
 
 def main():
