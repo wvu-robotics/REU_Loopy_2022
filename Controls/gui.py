@@ -7,7 +7,7 @@ import Loopy
 
 
 NUMBER_OF_AGENTS = 36
-LOAD_WARNING_THRESHOLD = .70
+LOAD_WARNING_THRESHOLD = 700 # 70%
 
 
 loopy = Loopy.Loopy(NUMBER_OF_AGENTS)
@@ -59,7 +59,7 @@ PlotsFrame = PlotFrame.PlotFrame(window, points_from_angles(CurrentAngleList).__
 def AgentTorque(i):
     if AgentList[i].get_present_load() == 0:
         return 'off'
-    elif AgentList[i].get_present_load() < LOAD_WARNING_THRESHOLD:
+    elif abs(AgentList[i].get_present_load()) < LOAD_WARNING_THRESHOLD:
         return 'good'
     else:
         return 'high'
