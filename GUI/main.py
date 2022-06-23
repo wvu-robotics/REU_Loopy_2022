@@ -16,11 +16,14 @@ window = Window()
 
 ##agent list
 AgentList = []
+for i in range(36):
+    AgentList.append(Agent.Agent(i, 0, 0, 0, [0, 0]))
 AgentListX = []
 AgentListY = []
 def UpdateAgents():
+    AgentListX = []
+    AgentListY = []
     for i in range(36):
-        AgentList.append(Agent.Agent(i, 0, 0, 0, [0,0]))
         Agent.Position(AgentList.__getitem__(i))
         Agent.CurrentAngle(AgentList.__getitem__(i))
         Agent.GoalAngle(AgentList.__getitem__(i))
@@ -37,53 +40,59 @@ PlotsFrame = PlotFrame.PlotFrame(window, AgentListX, AgentListY)
 
 ##agent status lights/angles
     ##read Agent State
-def AgentTorque(n):
-    if AgentList.__getitem__(n).state == 0:
+def AgentTorque(i):
+    if AgentList.__getitem__(i).torque == 0:
         return 'off'
-    elif AgentList.__getitem__(n).state <= 70:
+    elif AgentList.__getitem__(i).torque <= 70:
         return 'good'
-    elif AgentList.__getitem__(n).state >70:
+    elif AgentList.__getitem__(i).torque >70:
         return 'high'
-    ##light number labels
+
+# Display Agent Status 'Lights'
+def UpdateLights():
+    for i in range(36):
+        light_canvas = tk.Canvas(window, width=30, height=30, background='light blue', highlightthickness=0)
+        my_oval = light_canvas.create_oval(13, 13, 26, 26)  # Create a circle on the Canvas
+        # lights on/off
+        if AgentTorque(i) == 'good':
+            light_canvas.itemconfig(my_oval, fill='light green')
+        elif AgentTorque(i) == 'off':
+            light_canvas.itemconfig(my_oval, fill='light grey')
+        elif AgentTorque(i) == 'high':
+            light_canvas.itemconfig(my_oval, fill='red')
+        light_canvas.grid(column=i, row=26)
+UpdateLights()
+
+##Create light number labels
 for i in range(36):
     my_NumberLabel = tk.Label(window, text=str(i), background='light blue')
     my_NumberLabel.grid(column=i, row=27)
-    ##Current Angles
+
+ ##Display Agent Torque Labels
+def UpdateTorqueLabels():
+    for i in range(36):
+        TorqueLabel = tk.Label(window, text=str(AgentList.__getitem__(i).torque).zfill(3), background='light blue',borderwidth=3, relief='groove')
+        TorqueLabel.grid(column=i, row=29)
+UpdateTorqueLabels()
+
+##Display Goal Angles
+def UpdateGoalAngles():
+    for i in range(36):
+        g = AgentList.__getitem__(i).goal
+        my_GoalLabel = tk.Label(window, text=str(g).zfill(3), background='light blue', borderwidth=3,
+                                relief='groove')
+        my_GoalLabel.grid(column=i, row=32)
+UpdateGoalAngles()
+
+##Display Current Angles
 def UpdateCurrentAngles():
     for i in range(36):
         a = AgentList.__getitem__(i).angle
         my_AngleLabel = tk.Label(window, text=str(a).zfill(3), background='light blue', borderwidth=3, relief='groove')
         my_AngleLabel.grid(column=i, row=34)
 UpdateCurrentAngles()
-    ##Goal Angles
-def UpdateGoalAngles():
-    for i in range(36):
-        g = AgentList.__getitem__(i).goal
-        my_GoalLabel = tk.Label(window, text=str(g).zfill(3), background='light blue', borderwidth=3, relief='groove')
-        my_GoalLabel.grid(column=i, row=32)
-UpdateGoalAngles()
-    #Agent Status Lights
-def UpdateLights():
-    for i in range(36):
-        light_canvas = tk.Canvas(window, width=30, height=30, background='light blue', highlightthickness=0)
-        my_oval = light_canvas.create_oval(13, 13, 26, 26)  # Create a circle on the Canvas
-        #lights on/off
-        if AgentTorque(i)=='good':
-            light_canvas.itemconfig(my_oval, fill='light green')
-        elif AgentTorque(i)=='off':
-            light_canvas.itemconfig(my_oval, fill='light grey')
-        elif AgentTorque(i)=='high':
-            light_canvas.itemconfig(my_oval, fill='red')
-        light_canvas.grid(column=i, row=26)
-UpdateLights()
 
-        ##Agent Torque Labels
-def UpdateTorqueLabels():
-    for i in range(36):
-        TorqueLabel = tk.Label(window, text=str(AgentList.__getitem__(i).state).zfill(3), background='light blue',borderwidth=3, relief='groove')
-        TorqueLabel.grid(column=i, row=29)
-UpdateTorqueLabels()
-
+#Row Labels:
     ##label: 'Current Angle'
 CurrentAngleLabel = tk.Label(window, text='Current Angle:', background='light blue')
 CurrentAngleLabel.grid(columnspan=3, row=33)
@@ -94,7 +103,7 @@ GoalAngleLabel.grid(columnspan=3, row=30)
 TorqueLabel = tk.Label(window, text='Agent Torque:', background='light blue')
 TorqueLabel.grid(columnspan=3, row=28)
 
-##Toggle Manual Agent Control/ Consensus Algorithm
+##Button: Toggle Manual Agent Control/ Consensus Algorithm
 ControlLabel = tk.Label(text='Manual', bg='light blue', fg='#4863A0', width=7, height=1, highlightthickness=2)
 ControlLabel.grid(row=3, column=0, columnspan=4)
 def control():
@@ -106,22 +115,20 @@ def control():
         ControlLabel.config(text= 'Manual')
         SetButton['state'] = tk.NORMAL
     PlotsFrame.UpdateGoalPlot( LetterClicked.get())
-
 ControlBtn= tk.Button(window,activebackground='navy blue', bg='#4863A0', fg='white', width=6, height=1, text='Control', command=control)
 ControlBtn.grid(row=2, column=0, columnspan=4)
 
 ##Reboot Button
 def reboot():
     for i in AgentList:
-        i.state = 1
-        UpdateLights()
+        i.torque = 1 ## needs to actually call Nate's turn torque on function and re-read the servo's torque value
+    UpdateLights()
+    UpdateTorqueAngles()
 RebootBtn= tk.Button(window,activebackground='navy blue', bg='#4863A0', fg='white', width=6, height=1, text='Reboot', command=reboot)
 RebootBtn.grid(row=2, column=2, columnspan=4)
 
-##spacer
-#spacer = tk.Label(window, background='light blue').grid(row = 1)
-
-##Agent Dropdown Selection
+##Manual Control of Goal Angles
+#Agent Dropdown Selection
         # Change the label text
 def showAgent():
         SetAgentLabel.config(text=str(AgentClicked.get()))
@@ -140,7 +147,7 @@ SetAgentbutton = tk.Button(window, text="Select Agent", disabledforeground='#486
 SetAgentLabel = tk.Label(window, text=" ", background='light blue', relief='groove')
 SetAgentLabel.grid(column=28, row=2, columnspan=4)
 
-##Angle Selection
+#Angle Selection
 def showAngle():
     SetAngleLabel.config(text=str(AngleChosen.get()))
     # datatype of menu text
@@ -156,7 +163,7 @@ SetAnglebutton = tk.Button(window, text="Select Angle",disabledforeground='#4863
 SetAngleLabel = tk.Label(window, text=" ", background='light blue', relief='groove')
 SetAngleLabel.grid(column=28, row=3, columnspan=4)
 
- ##Set Angle to Agent
+#Set Angle to Agent
 def SetAngleToAgent():
     AgentList.__getitem__(AgentClicked.get()).goal = AngleChosen.get()
     UpdateGoalAngles()
@@ -171,6 +178,7 @@ SetButton.grid(column=24, row=4, columnspan=4, pady=10)
 ######Ave Consensus
         ##L shape
 LetterListL = [90,180,180,90,180,180,180,180,180,180,180,270,180,180,180,180,90,180,180,90,180,180,180,180,180,180,90,180,180,180,180,180,180,180,180,180]
+        ##O shape
 LetterListO = [170,170,170,170,170,170,170,170,170,170,170,170,170,170,170,170,170,170,170,170,170,170,170,170,170,170,170,170,170,170,170,170,170,170,170,170]
 
 LetterOptions = ['L', 'O']
@@ -190,34 +198,34 @@ def AveCon():
     elif LetterClicked.get() == 'O':
         LetterList = LetterListO
 
-
+    #make an initial error list for each of 36 goals for each of 36 agents
     def error(CirList):
         curr_node = CirList.head
         while curr_node.next:
-           curr_node.data.errorL = []
+           curr_node.data.ErrorList = []
            for j in LetterList:
                error = abs(curr_node.data.angle - j)
-               curr_node.data.errorL.append(error)
+               curr_node.data.ErrorList.append(error)
            curr_node = curr_node.next
            if curr_node == CirList.head:
                break
     error(CircularAgentList)
 
-
+    #average the agent's error list values
     def LocalAveError(CirList):
         curr_node = CirList.head
         while curr_node.next:
-            for j in curr_node.next.data.errorL:
-                my_error_index = curr_node.next.data.errorL.index(j)
+            for j in curr_node.next.data.ErrorList:
+                my_error_index = curr_node.next.data.ErrorList.index(j)
                 if my_error_index == 0:
-                    average = (curr_node.data.errorL[35] + curr_node.next.data.errorL[my_error_index] +
-                               curr_node.next.next.data.errorL[my_error_index + 1]) / 3
+                    average = (curr_node.data.ErrorList[35] + curr_node.next.data.ErrorList[my_error_index] +
+                               curr_node.next.next.data.ErrorList[my_error_index + 1]) / 3
                 elif my_error_index == 35:
-                    average = (curr_node.data.errorL[my_error_index - 1] + curr_node.next.data.errorL[my_error_index] +
-                               curr_node.next.next.data.errorL[0]) / 3
+                    average = (curr_node.data.ErrorList[my_error_index - 1] + curr_node.next.data.ErrorList[my_error_index] +
+                               curr_node.next.next.data.ErrorList[0]) / 3
                 elif my_error_index >0 and my_error_index <35:
-                    average = (curr_node.data.errorL[my_error_index-1] + curr_node.next.data.errorL[my_error_index] + curr_node.next.next.data.errorL[my_error_index+1]) / 3
-                curr_node.next.data.errorL[my_error_index] = average
+                    average = (curr_node.data.ErrorList[my_error_index-1] + curr_node.next.data.ErrorList[my_error_index] + curr_node.next.next.data.ErrorList[my_error_index+1]) / 3
+                curr_node.next.data.ErrorList[my_error_index] = average
             curr_node = curr_node.next
             if curr_node == CirList.head:
                 break
@@ -231,7 +239,7 @@ def AveCon():
         curr_node = CirList.head
         while curr_node.next:
             index = curr_node.data.name
-            my_orientation = curr_node.data.errorL.index(min(curr_node.data.errorL))
+            my_orientation = curr_node.data.ErrorList.index(min(curr_node.data.ErrorList))
             #print (str(index) + 'goal orient' + str(my_orientation))
             curr_node.data.goal = LetterList.__getitem__(my_orientation)
             curr_node = curr_node.next
@@ -286,11 +294,11 @@ def LoopyMove():
     curr_node = CircularAgentList.head
     while curr_node.next:
         if (curr_node.data.angle-curr_node.data.goal) <= -8:
-            curr_node.data.angle = curr_node.data.angle + 8
+            curr_node.data.angle = curr_node.data.angle + 8 ##needs to also write to servo to actually move
         elif (curr_node.data.angle-curr_node.data.goal) >= 8:
-            curr_node.data.angle = curr_node.data.angle - 8
+            curr_node.data.angle = curr_node.data.angle - 8 ##needs to also write to servo to move
         else:
-            curr_node.data.angle = curr_node.data.angle - (curr_node.data.angle - curr_node.data.goal)
+            curr_node.data.angle = curr_node.data.angle - (curr_node.data.angle - curr_node.data.goal) ##needs to also write to servo to move
         curr_node = curr_node.next
         if curr_node == CircularAgentList.head:
             break
