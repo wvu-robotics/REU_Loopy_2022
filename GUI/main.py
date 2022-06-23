@@ -1,7 +1,13 @@
 import random
 import tkinter as tk
 import PlotFrame
+<<<<<<< HEAD
 import GUI.Agent as Agent
+=======
+import Agent
+import math
+import cmath
+>>>>>>> 8de575a806ce5e0e99c2394f15142a21e214466c
 
 class Window(tk.Tk):
     def __init__(self):
@@ -16,27 +22,46 @@ window = Window()
 
 ##agent list
 AgentList = []
-for i in range(36):
-    AgentList.append(Agent.Agent(i, 0, 0, 0, [0, 0]))
-AgentListX = []
-AgentListY = []
+#AgentListX = []
+#AgentListY = []
 def UpdateAgents():
-    AgentListX = []
-    AgentListY = []
     for i in range(36):
+        AgentList.append(Agent.Agent(i, 0, 0, 0, [0, 0]))
         Agent.Position(AgentList.__getitem__(i))
         Agent.CurrentAngle(AgentList.__getitem__(i))
         Agent.GoalAngle(AgentList.__getitem__(i))
         Agent.TourqeState(AgentList.__getitem__(i))
             ##Agent XY Position Lists
-    for i in AgentList:
-        AgentListX.append(i.pose[0])
-    for i in AgentList:
-        AgentListY.append(i.pose[1])
+    #for i in AgentList:
+       # AgentListX.append(i.pose[0])
+    #for i in AgentList:
+       # AgentListY.append(i.pose[1])
 UpdateAgents()
 
 ##add plots frame
-PlotsFrame = PlotFrame.PlotFrame(window, AgentListX, AgentListY)
+
+CurrentAngleList = [0]
+def UpdateCurrentAngleList():
+    for i in AgentList:
+        CurrentAngleList.append(i.angle)
+UpdateCurrentAngleList()
+
+def points_from_angles(AngleList):
+    #anglelist - list of angles
+    #length - length of the line per point
+    Xpoints = [0]
+    Ypoints = [0]
+    length = 5
+    for angle in AngleList:
+        index = AngleList.index(angle)
+        nexty = Ypoints.__getitem__(index) + length * math.sin(math.radians(angle-AngleList.__getitem__(index-1)))
+        nextx = length * math.cos(math.radians(angle-AngleList.__getitem__(index-1)))
+        Xpoints.append(nextx)
+        Ypoints.append(nexty)
+    return [Xpoints, Ypoints]
+
+PlotsFrame = PlotFrame.PlotFrame(window, points_from_angles(CurrentAngleList).__getitem__(0),points_from_angles(CurrentAngleList).__getitem__(1))
+
 
 ##agent status lights/angles
     ##read Agent State
@@ -122,8 +147,7 @@ ControlBtn.grid(row=2, column=0, columnspan=4)
 def reboot():
     for i in AgentList:
         i.torque = 1 ## needs to actually call Nate's turn torque on function and re-read the servo's torque value
-    UpdateLights()
-    UpdateTorqueAngles()
+        UpdateLights()
 RebootBtn= tk.Button(window,activebackground='navy blue', bg='#4863A0', fg='white', width=6, height=1, text='Reboot', command=reboot)
 RebootBtn.grid(row=2, column=2, columnspan=4)
 
@@ -303,6 +327,11 @@ def LoopyMove():
         if curr_node == CircularAgentList.head:
             break
     UpdateCurrentAngles()
+    UpdateCurrentAngleList()
+    PlotsFrame.canvas.delete()
+    PlotsFrame2 = PlotFrame.PlotFrame(window, points_from_angles(CurrentAngleList).__getitem__(0),
+                                     points_from_angles(CurrentAngleList).__getitem__(1))
+
 
 MoveBtn = tk.Button(window,activebackground='navy blue', bg='#4863A0', fg='white', width=6, height=1, text='Move',command=LoopyMove)
 MoveBtn.grid(row=4, column=0, columnspan=4)

@@ -9,6 +9,7 @@ class PlotFrame(tk.Frame):
         super().__init__(container)
 
         self.configure(background='light blue', height=1, width=1)
+
 #Plot labels
         self.label1 = ttk.Label(self, text='Current Position                                                                                                                                                                                      '
                                            'Goal Position', background='light blue', foreground="navy blue")
@@ -17,10 +18,11 @@ class PlotFrame(tk.Frame):
 ##Current Pose Plot
         f1 = Figure(figsize=(6, 2.7), dpi=100)
         a = f1.add_subplot(111)
-        ###edit to get pose data from ROS
+        a.set_ylim([-10, 10])  # set the graph bounds
+        a.set_xlim([-10, 10])
         a.plot(ListX,ListY)
-        canvas = FigureCanvasTkAgg(f1, self)
-        canvas.get_tk_widget().pack(side=tk.LEFT )
+        self.canvas = FigureCanvasTkAgg(f1, self)
+        self.canvas.get_tk_widget().pack(side=tk.LEFT)
 
 ###Goal Pose Plot
         f2 = Figure(figsize=(2.7, 2.7), dpi=100)
@@ -31,7 +33,6 @@ class PlotFrame(tk.Frame):
 ##Add to window
         self.grid(row=0, columnspan=60, padx=2, pady=0)
 
-# does not work rn 6/22/22
     def UpdateGoalPlot(self, Goal):
         self.canvasG.get_tk_widget().delete()
         ##how to delete previous plot
@@ -48,5 +49,6 @@ class PlotFrame(tk.Frame):
         canvasG.get_tk_widget().pack
         #self.grid(row=0, columnspan=60, padx=2, pady=0)
 
-
+    def delete(self):
+        self.destroy()
 
