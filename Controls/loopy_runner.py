@@ -1,4 +1,3 @@
-from re import T
 from time import sleep
 from Controls.Loopy import *
 

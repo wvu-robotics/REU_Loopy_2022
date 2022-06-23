@@ -30,7 +30,7 @@ class Agent:
         self.id = id
         self.packet_handler = Protocol2PacketHandler()
         self.port_handler = self.get_port(); self.open_port()
-        self.desired_angle = "000"
+        self.desired_angle = None
 
 
 
