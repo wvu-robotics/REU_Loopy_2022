@@ -130,10 +130,15 @@ def reboot():
     loopy.torque_on_all_agents()
     UpdateTorqueLabels()
     UpdateLights()
-
-
 RebootBtn= tk.Button(window,activebackground='navy blue', bg='#4863A0', fg='white', width=6, height=1, text='Reboot', command=reboot)
 RebootBtn.grid(row=2, column=2, columnspan=4)
+
+##Flexible Mode Button
+'''
+Loopy must be in flexible mode to recieve physical human input (to allow human to move it, changing the measurable load)
+'''
+FlexibleBtn = tk.Button(window,activebackground='navy blue', bg='#4863A0', fg='white', width=6, height=1, text='Go Flexible', command=loopy.torque_off_all_agents)
+FlexibleBtn.grid(row=3, column=2, columnspan=4)
 
 ##Manual Control of Goal Angles
 #Agent Dropdown Selection
