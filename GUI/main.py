@@ -1,7 +1,7 @@
 import random
 import tkinter as tk
 import PlotFrame
-import Agent
+import GUI.Agent as Agent
 
 class Window(tk.Tk):
     def __init__(self):
