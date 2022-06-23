@@ -1,5 +1,7 @@
 # import random 
 import tkinter as tk
+
+from matplotlib.pyplot import title
 import PlotFrame 
 import math
 # import cmath
@@ -11,28 +13,17 @@ LOAD_WARNING_THRESHOLD = 700 # 70%
 
 
 loopy = Loopy.Loopy(NUMBER_OF_AGENTS)
+loopy.torque_off_all_agents()
 
-class Window(tk.Tk):
-    def __init__(self):
-        super().__init__()
-        # configure the root window
-        self.title('Loopy GUI')
-        self.geometry('1080x600')
-        self.configure(background='light blue')
 
-##make window
-window = Window()
-
-##agent list
-
-AgentList = loopy.agents
-
-##add plots frame
-
+window = tk.Tk()
+window.title = "Loopy GUI"
+window.geometry = "1080x600"
+window.configure(bg="light blue")
 
 CurrentAngleList = [0]
 def UpdateCurrentAngleList():
-    for i in AgentList:
+    for i in loopy.agents:
         CurrentAngleList.append(i.get_present_position() * 360 / 4096 )
 UpdateCurrentAngleList()
 
@@ -57,9 +48,9 @@ PlotsFrame = PlotFrame.PlotFrame(window, points_from_angles(CurrentAngleList).__
 ##agent status lights/angles
     ##read Agent State
 def AgentTorque(i):
-    if AgentList[i].get_present_load() == 0:
+    if loopy.agents[i].get_present_load() == 0:
         return 'off'
-    elif abs(AgentList[i].get_present_load()) < LOAD_WARNING_THRESHOLD:
+    elif abs(loopy.agents[i].get_present_load()) < LOAD_WARNING_THRESHOLD:
         return 'good'
     else:
         return 'high'
@@ -87,14 +78,14 @@ for i in range(36):
  ##Display Agent Torque Labels
 def UpdateTorqueLabels():
     for i in range(36):
-        TorqueLabel = tk.Label(window, text=str(AgentList[i].get_present_load()).zfill(3), background='light blue',borderwidth=3, relief='groove')
+        TorqueLabel = tk.Label(window, text=str(loopy.agents[i].get_present_load()).zfill(3), background='light blue',borderwidth=3, relief='groove')
         TorqueLabel.grid(column=i, row=29)
 UpdateTorqueLabels()
 
 ##Display Goal Angles
 def UpdateGoalAngles():
     for i in range(36):
-        g = AgentList[i].desired_angle
+        g = loopy.agents[i].desired_angle
         my_GoalLabel = tk.Label(window, text=str(g).zfill(3), background='light blue', borderwidth=3,
                                 relief='groove')
         my_GoalLabel.grid(column=i, row=32)
@@ -103,7 +94,7 @@ UpdateGoalAngles()
 ##Display Current Angles
 def UpdateCurrentAngles():
     for i in range(36):
-        a = AgentList[i].get_present_position() * 360 / 4096
+        a = loopy.agents[i].get_present_position() * 360 / 4096
         my_AngleLabel = tk.Label(window, text=str(int(a)).zfill(3), background='light blue', borderwidth=3, relief='groove')
         my_AngleLabel.grid(column=i, row=34)
 UpdateCurrentAngles()
@@ -182,7 +173,7 @@ SetAngleLabel.grid(column=28, row=3, columnspan=4)
 
 #Set Angle to Agent
 def SetAngleToAgent():
-    AgentList[AgentClicked.get()].desired_angle = AngleChosen.get()
+    loopy.agents[AgentClicked.get()].desired_angle = AngleChosen.get()
     UpdateGoalAngles()
     AngleChosen.set(0)
     AgentClicked.set(0)
@@ -301,7 +292,7 @@ class CircularList(object):
             return
 
 CircularAgentList = CircularList()
-for agent in AgentList:
+for agent in loopy.agents:
     CircularAgentList.insert_end(agent)
 ##
 
