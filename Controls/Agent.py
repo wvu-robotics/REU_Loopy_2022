@@ -74,7 +74,7 @@ class Agent:
             True/False - True if the port was able to be opened, False otherwise
         """
         if self.port_handler.openPort() and self.port_handler.setBaudRate(BAUDRATE):
-            print("Opened the USB Port \"" + self.port_handler.port_name + "\" and set the baudrate")
+            # print("Opened the USB Port \"" + self.port_handler.port_name + "\" and set the baudrate")
             return True
         else:  
             return False
@@ -90,7 +90,7 @@ class Agent:
             True/False - True if the port was able to be closed, False otherwise
         """
         if self.port_handler.closePort:
-            print("Closed the USB Port \"" + self.port_handler.port_name + "\"")
+            # print("Closed the USB Port \"" + self.port_handler.port_name + "\"")
             return True
         else:  
             return False
@@ -122,7 +122,7 @@ class Agent:
             90 degrees is 1024
             (positions are measured by the dynamixels counterclockwise with left being position 0)
         """
-        return int(goal_angle * DXL_MAXIMUM_POSITION_VALUE / 360)
+        return int(goal_angle * 4096 / 360)
 
 
     def set_goal_angle( self, angle_in_degrees ):
@@ -171,6 +171,18 @@ class Agent:
         recieved_packet = self.packet_handler.read2ByteTxRx(self.port_handler, self.id, ADDR_PRESENT_POSITION)
         return int(recieved_packet[0])
 
+    def get_present_angle(self):
+        """
+        Gets the angle of an Agent's dynamixel   
+
+        Parameters:
+            None
+        Returns:
+            angle value for an agent's dynamixel
+        """
+        recieved_packet = self.packet_handler.read2ByteTxRx(self.port_handler, self.id, ADDR_PRESENT_POSITION)
+        return int(int(recieved_packet[0]) / 4096 * 360)
+
 
     def set_desired_angle(self, desired_angle):
         """
@@ -194,6 +206,7 @@ class Agent:
         """
         recieved_packet = self.packet_handler.read2ByteTxRx(self.port_handler, self.id, ADDR_PRESENT_LOAD)
         return int(recieved_packet[0])
+
 
 
 

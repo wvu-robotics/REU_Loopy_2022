@@ -55,7 +55,7 @@ class Loopy:
             self.agents[id].torque_control("on")
 
    
-    def store_current_shape(self, shape_name):
+    def store_current_shape(self, shape_name ):
         """
         Stores the current shape of Loopy in a csv file   
 
