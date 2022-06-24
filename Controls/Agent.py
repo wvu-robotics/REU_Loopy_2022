@@ -31,8 +31,8 @@ class Agent:
         self.packet_handler = Protocol2PacketHandler()
         self.port_handler = self.get_port(); self.open_port()
         self.desired_angle = "000"
-        self.torque_on_off = False 
-
+        self.torque_on_off = False
+        self.errors = []
 
 
     def __str__(self):
@@ -206,6 +206,7 @@ class Agent:
         """
         recieved_packet = self.packet_handler.read2ByteTxRx(self.port_handler, self.id, ADDR_PRESENT_LOAD)
         return int(recieved_packet[0])
+
 
 
 
