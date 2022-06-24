@@ -71,13 +71,20 @@ load_labels = []
 
 def create_load_labels():
     for i in range(loopy.agent_count):
-        load_labels.append(tk.Label(window, font=("Calibri", 10), text=str(loopy.agents[i].get_present_load()).zfill(3), background='light blue',borderwidth=3, relief='groove'))
+        load_labels.append(tk.Label(window, text=str(loopy.agents[i].get_present_load()).zfill(3), background='light blue',borderwidth=3, relief='groove'))
         load_labels[i].grid(column=i, row= ROW_CIRCLE + 3)
         
 def update_load_labels():
     print("Updating Load")
     for i in range(loopy.agent_count):
-        load_labels[i].config(text=str(loopy.agents[i].get_present_load()).zfill(3), background='light blue',borderwidth=3, relief='groove')
+        a = loopy.agents[i].get_present_load()/10
+        if a < 1 :
+            a = 1
+        elif a > 999:
+            a = 999
+        else:
+            a = int(a)
+        load_labels[i].config(text=str(a).zfill(3), background='light blue',borderwidth=3, relief='groove')
         # load_labels[i].config(window, text=str(loopy.agents[i].get_present_load()).zfill(3), background='light blue',borderwidth=3, relief='groove')
 
 
@@ -109,7 +116,7 @@ def update_current_angle_labels():
         # current_angle_labels[i].config(tk.Label(window, text=str(loopy.agents[i].get_present_angle()).zfill(3), background='light blue',borderwidth=3, relief='groove'))
 
 
-TorqueLabel = tk.Label(window, text='Agent Torque:', background='light blue')
+TorqueLabel = tk.Label(window, text='Agent Load:', background='light blue')
 TorqueLabel.grid(columnspan=3, row= ROW_CIRCLE + 2 )
 
 
@@ -368,7 +375,7 @@ MoveBtn.grid(row=4, column=0, columnspan=4)
 
 
 store_shape_btn = tk.Button(window,activebackground='navy blue', bg='#4863A0', fg='white', width=10, height=1, text='Store Shape',command=store_shape)
-store_shape_btn.grid(row= 4, column= 7, columnspan=4)
+store_shape_btn.grid(row= 4, column= 5, columnspan=4)
 
 
 #######
