@@ -1,11 +1,9 @@
-# import random 
 from time import sleep
 import tkinter as tk
 from threading import Thread
 from matplotlib.pyplot import title
 import PlotFrame 
 import math
-# import cmath
 import Loopy
 
 NUMBER_OF_AGENTS = 36
@@ -157,14 +155,14 @@ def torque_on():
     update_lights()
 
 torque_on_btn= tk.Button(window,activebackground='navy blue', bg='#4863A0', fg='white', width=8, height=1, text='Torque On', command=torque_on)
-torque_on_btn.grid(row=2, column=2, columnspan=4)
+torque_on_btn.grid(row=2, column=3, columnspan=4)
 
 ##Flexible Mode Button
 '''
 Loopy must be in flexible mode to recieve physical human input (to allow human to move it, changing the measurable load)
 '''
-torque_off_btn = tk.Button(window,activebackground='navy blue', bg='#4863A0', fg='white', width=8, height=1, text='Go Flexible', command=torque_off)
-torque_off_btn.grid(row=2, column=4, columnspan=4)
+torque_off_btn = tk.Button(window,activebackground='navy blue', bg='#4863A0', fg='white', width=8, height=1, text='Torque Off', command=torque_off)
+torque_off_btn.grid(row=2, column=6, columnspan=4)
 
 ##Manual Control of Goal Angles
 #Agent Dropdown Selection
