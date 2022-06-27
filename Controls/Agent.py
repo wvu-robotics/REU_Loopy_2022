@@ -1,5 +1,5 @@
 from dynamixel_sdk import *
-
+from multiprocessing import *
 
 BAUDRATE = 57600
 DEVICE_NAME0 = "COM3" # Linux: /dev/ttyUSB*
@@ -32,6 +32,8 @@ class Agent:
         self.port_handler = self.get_port(); self.open_port()
         self.desired_angle = "000"
         self.torque_on_off = False
+        self.process = Process()
+        self.goal_shape = [] 
         self.errors = []
 
 
@@ -209,23 +211,17 @@ class Agent:
         recieved_packet = self.packet_handler.read2ByteTxRx(self.port_handler, self.id, ADDR_PRESENT_LOAD)
         return int(recieved_packet[0])
 
-
     
+    def calculate_errors(self):
+        shape = self.goal_shape
+        self.errors = []
+        for i in shape:
+            self.errors.append()
+                
 
+    def running(self):
 
-
-
-
-
-
-
-
-
-
-
-        
-
-
-
-        
-    
+        while self.torque_on_off == "on":
+            
+            pos = self.get_present_position
+            
