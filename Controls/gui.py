@@ -124,111 +124,6 @@ CurrentAngleLabel = tk.Label(window, text='Current Angle:', background='light bl
 CurrentAngleLabel.grid(columnspan=3, row= ROW_CIRCLE + 6)
 
 
-'''
-Below: the buttons in the top half of the gui are made & 'gridded'/ shown
-'''
-###Save Shape Buttons Group (left)
-
-def store_shape():
-    loopy.store_current_shape("L")
-
-SaveShapeBtn = tk.Button(window,activebackground='navy blue', bg='#4863A0', fg='white', width=10, height=1, text='Store Shape',command=store_shape)
-SaveShapeBtn.grid(column = 2, row = 1, columnspan=4)
-
-ShapeNameLabel= tk.Label(text = 'Enter Shape Name:', background = 'light blue')
-ShapeNameLabel.grid(column=0, row=0, columnspan=4)
-
-ShapeChosen = tk.StringVar()   
-ShapeNameEntry = tk.Entry(window, textvariable=ShapeChosen, width=5)
-ShapeNameEntry.grid(column = 4, row = 0, columnspan=1)
-
-
-###Consensus Buttons group (middle)
-def control():
-    if ControlLabel.config('text')[-1] == 'Manual':
-        ControlLabel.config(text= 'Algorithm')
-        SetButton['state'] = tk.DISABLED
-        AveCon()
-    else:
-        ControlLabel.config(text= 'Manual')
-        SetButton['state'] = tk.NORMAL
-ControlBtn= tk.Button(window,activebackground='navy blue', bg='#4863A0', fg='white', width=6, height=1, text='Control', command=control)
-ControlBtn.grid(column = 12, row = 1, columnspan=4)
-
-ChooseShapeLabel = tk.Label(window, text = 'Choose Shape:', background= 'light blue')
-ChooseShapeLabel.grid(column=10, row=0, columnspan=4)
-
-LetterOptions = ['L', 'O']
-LetterClicked = tk.StringVar()
-LetterClicked.set('L')
-LetterDrop = tk.OptionMenu(window, LetterClicked, *LetterOptions)
-LetterDrop.grid(column = 14, row = 0, columnspan=4)
-
-def LoopyMove():
-    curr_node = CircularAgentList.head
-    while curr_node.next:
-        present_angle = curr_node.data.get_present_angle()
-        if (present_angle - int(curr_node.data.desired_angle)) <= -16:
-            present_angle += 16
-        elif (present_angle - int(curr_node.data.desired_angle)) >= 16:
-            present_angle -= 16
-        else:
-            present_angle -= present_angle - int(curr_node.data.desired_angle)
-        curr_node.data.set_goal_angle(present_angle)
-        curr_node = curr_node.next
-        if curr_node == CircularAgentList.head:
-            break
-MoveBtn = tk.Button(window,activebackground='navy blue', bg='#4863A0', fg='white', width=6, height=1, text='Move',command=LoopyMove)
-MoveBtn.grid(row=2, column=12, columnspan=4)
-
-
-###Manual Control Buttons Group (right)
-    #agent selection
-AgentOptions = range(36)
-        # datatype of menu text
-AgentClicked = tk.IntVar()
-        # initial menu text
-AgentClicked.set(0)
-        # Create Dropdown menu
-AgentDrop = tk.OptionMenu(window, AgentClicked, *AgentOptions)
-AgentDrop.grid(column=25, row=0, columnspan=2)
-        
-    #angle selection
-AngleChosen = tk.IntVar()
-    # initial menu text
-AngleChosen.set(0)
-    # Create Text Entry
-AngleEntry = tk.Entry(window, textvariable=AngleChosen, width=5)
-AngleEntry.grid(column=25, row=1, columnspan=2)
-    # Create button, it will change label text
-
-    #Set Angle to Agent
-def SetAngleToAgent():
-    loopy.agents[AgentClicked.get()].desired_angle = AngleChosen.get()
-    loopy.agents[AgentClicked.get()].set_goal_angle(AngleChosen.get())
-    AngleChosen.set(0)
-    AgentClicked.set(0)   
-SetButton = tk.Button(window,text="Set Goal Angle", activebackground='navy blue', bg='#4863A0', fg='white', disabledforeground='#4863A0', command= SetAngleToAgent)
-SetButton.grid(column=24, row=2, columnspan=4, pady=10)
-
-
-###Torque Buttons Group (bottom middle)
-
-def torque_off():
-    loopy.torque_off_all_agents()
-    update_lights()
-def torque_on():
-    loopy.torque_on_all_agents()
-    update_lights()
-
-torque_on_btn= tk.Button(window,activebackground='navy blue', bg='#4863A0', fg='white', width=8, height=1, text='Torque On', command=torque_on)
-torque_on_btn.grid(column=10, row=5, columnspan=4)
-
-torque_off_btn = tk.Button(window,activebackground='navy blue', bg='#4863A0', fg='white', width=8, height=1, text='Torque Off', command=torque_off)
-torque_off_btn.(column = 14, row = 5, columnspan=4) 
-
-
-
 ######Ave Consensus
        
 def create_letter_l():
@@ -356,6 +251,102 @@ def update_labels():
         update_current_angle_labels()
         sleep(.2)
 
+
+'''
+Below: the buttons in the top half of the gui are made & 'gridded'/ shown
+'''
+###Save Shape Buttons Group (left)
+
+def store_shape():
+    loopy.store_current_shape("L")
+
+SaveShapeBtn = tk.Button(window,activebackground='navy blue', bg='#4863A0', fg='white', width=10, height=1, text='Store Shape',command=store_shape)
+SaveShapeBtn.grid(column = 2, row = 1, columnspan=4)
+
+ShapeNameLabel= tk.Label(text = 'Enter Shape Name:', background = 'light blue')
+ShapeNameLabel.grid(column=0, row=0, columnspan=4)
+
+ShapeChosen = tk.StringVar()   
+ShapeNameEntry = tk.Entry(window, textvariable=ShapeChosen, width=5)
+ShapeNameEntry.grid(column = 4, row = 0, columnspan=1)
+
+
+###Consensus Buttons group (middle)
+
+ControlBtn= tk.Button(window,activebackground='navy blue', bg='#4863A0', fg='white', width=6, height=1, text='Control', command=AveCon)
+ControlBtn.grid(column = 12, row = 1, columnspan=4)
+
+ChooseShapeLabel = tk.Label(window, text = 'Choose Shape:', background= 'light blue')
+ChooseShapeLabel.grid(column=10, row=0, columnspan=4)
+
+LetterOptions = ['L', 'O']
+LetterClicked = tk.StringVar()
+LetterClicked.set('L')
+LetterDrop = tk.OptionMenu(window, LetterClicked, *LetterOptions)
+LetterDrop.grid(column = 14, row = 0, columnspan=4)
+
+def LoopyMove():
+    curr_node = CircularAgentList.head
+    while curr_node.next:
+        present_angle = curr_node.data.get_present_angle()
+        if (present_angle - int(curr_node.data.desired_angle)) <= -16:
+            present_angle += 16
+        elif (present_angle - int(curr_node.data.desired_angle)) >= 16:
+            present_angle -= 16
+        else:
+            present_angle -= present_angle - int(curr_node.data.desired_angle)
+        curr_node.data.set_goal_angle(present_angle)
+        curr_node = curr_node.next
+        if curr_node == CircularAgentList.head:
+            break
+MoveBtn = tk.Button(window,activebackground='navy blue', bg='#4863A0', fg='white', width=6, height=1, text='Move',command=LoopyMove)
+MoveBtn.grid(row=2, column=12, columnspan=4)
+
+
+###Manual Control Buttons Group (right)
+    #agent selection
+AgentOptions = range(36)
+        # datatype of menu text
+AgentClicked = tk.IntVar()
+        # initial menu text
+AgentClicked.set(0)
+        # Create Dropdown menu
+AgentDrop = tk.OptionMenu(window, AgentClicked, *AgentOptions)
+AgentDrop.grid(column=25, row=0, columnspan=2)
+        
+    #angle selection
+AngleChosen = tk.IntVar()
+    # initial menu text
+AngleChosen.set(0)
+    # Create Text Entry
+AngleEntry = tk.Entry(window, textvariable=AngleChosen, width=5)
+AngleEntry.grid(column=25, row=1, columnspan=2)
+    # Create button, it will change label text
+
+    #Set Angle to Agent
+def SetAngleToAgent():
+    loopy.agents[AgentClicked.get()].desired_angle = AngleChosen.get()
+    loopy.agents[AgentClicked.get()].set_goal_angle(AngleChosen.get())
+    AngleChosen.set(0)
+    AgentClicked.set(0)   
+SetButton = tk.Button(window,text="Set Goal Angle", activebackground='navy blue', bg='#4863A0', fg='white', disabledforeground='#4863A0', command= SetAngleToAgent)
+SetButton.grid(column=24, row=2, columnspan=4, pady=10)
+
+
+###Torque Buttons Group (bottom middle)
+
+def torque_off():
+    loopy.torque_off_all_agents()
+    update_lights()
+def torque_on():
+    loopy.torque_on_all_agents()
+    update_lights()
+
+torque_on_btn= tk.Button(window,activebackground='navy blue', bg='#4863A0', fg='white', width=8, height=1, text='Torque On', command=torque_on)
+torque_on_btn.grid(column=10, row=5, columnspan=4)
+
+torque_off_btn = tk.Button(window,activebackground='navy blue', bg='#4863A0', fg='white', width=8, height=1, text='Torque Off', command=torque_off)
+torque_off_btn.grid(column = 14, row = 5, columnspan=4)
 
 update_labels_thread = Thread(target= update_labels)
 update_labels_thread.start()
