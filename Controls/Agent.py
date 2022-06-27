@@ -195,6 +195,7 @@ class Agent:
         """
         self.desired_angle = desired_angle
 
+
     def get_present_load(self):
         """
         Gets the load of an Agent's dynamixel   
@@ -206,6 +207,9 @@ class Agent:
         """
         recieved_packet = self.packet_handler.read2ByteTxRx(self.port_handler, self.id, ADDR_PRESENT_LOAD)
         return int(recieved_packet[0])
+
+
+    
 
 
 
