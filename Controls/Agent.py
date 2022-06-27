@@ -171,6 +171,7 @@ class Agent:
         recieved_packet = self.packet_handler.read2ByteTxRx(self.port_handler, self.id, ADDR_PRESENT_POSITION)
         return int(recieved_packet[0])
 
+
     def get_present_angle(self):
         """
         Gets the angle of an Agent's dynamixel   
