@@ -17,7 +17,7 @@ loopy = Loopy.Loopy(NUMBER_OF_AGENTS)
 
 window = tk.Tk()
 window.title = "Loopy GUI"
-window.geometry = "1080x600"
+window.geometry = "1080x350"
 window.configure(bg="light blue")
 
 CurrentAngleList = [0]
@@ -40,8 +40,11 @@ def points_from_angles(AngleList):
         Ypoints.append(nexty)
     return [Xpoints, Ypoints]
 
+#PlotsFrame = PlotFrame.PlotFrame(window, points_from_angles(CurrentAngleList)[0], points_from_angles(CurrentAngleList)[0])
 
-PlotsFrame = PlotFrame.PlotFrame(window, points_from_angles(CurrentAngleList)[0], points_from_angles(CurrentAngleList)[0])
+'''
+Below: rows of lights, agent numbers, agent load, current angle, & goal angle are made & shown
+'''
 
 # Display Agent Status 'Lights'
 def update_lights():
@@ -64,9 +67,8 @@ for i in range(36):
     my_NumberLabel = tk.Label(window, text=str(i), background='light blue')
     my_NumberLabel.grid(column=i, row= ROW_CIRCLE + 1 )
 
+## agent load labels
 load_labels = []
-
-
 def create_load_labels():
     for i in range(loopy.agent_count):
         load_labels.append(tk.Label(window, text=str(loopy.agents[i].get_present_load()).zfill(3), background='light blue',borderwidth=3, relief='groove'))
@@ -85,9 +87,8 @@ def update_load_labels():
         load_labels[i].config(text=str(a).zfill(3), background='light blue',borderwidth=3, relief='groove')
         # load_labels[i].config(window, text=str(loopy.agents[i].get_present_load()).zfill(3), background='light blue',borderwidth=3, relief='groove')
 
-
+##agent goal labels
 goal_angles_labels = [] 
-
 def create_goal_angle_labels():
     for i in range(loopy.agent_count):
         goal_angles_labels.append(tk.Label(window, text=str(loopy.agents[i].desired_angle).zfill(3), background='light blue', borderwidth=3, relief='groove'))
@@ -99,9 +100,8 @@ def update_goal_angle_labels():
         goal_angles_labels[i].config(text=str(loopy.agents[i].desired_angle).zfill(3), background='light blue', borderwidth=3, relief='groove')
         #goal_angles_labels[i].config(tk.Label(window, text=str(loopy.agents[i].desired_angle).zfill(3), background='light blue', borderwidth=3, relief='groove'))
 
-
+##agent current angle labels
 current_angle_labels = [] 
-
 def create_current_angle_labels():
     for i in range(loopy.agent_count):
         current_angle_labels.append(tk.Label(window, text=str(loopy.agents[i].get_present_angle()).zfill(3), background='light blue',borderwidth=3, relief='groove'))
@@ -113,24 +113,37 @@ def update_current_angle_labels():
         current_angle_labels[i].config(text=str(loopy.agents[i].get_present_angle()).zfill(3), background='light blue',borderwidth=3, relief='groove')
         # current_angle_labels[i].config(tk.Label(window, text=str(loopy.agents[i].get_present_angle()).zfill(3), background='light blue',borderwidth=3, relief='groove'))
 
-
+##Text above label rows
 TorqueLabel = tk.Label(window, text='Agent Load:', background='light blue')
 TorqueLabel.grid(columnspan=3, row= ROW_CIRCLE + 2 )
 
-
 GoalAngleLabel = tk.Label(window, text='Goal Angle:', background='light blue')
 GoalAngleLabel.grid(columnspan=3, row= ROW_CIRCLE + 4)
-
 
 CurrentAngleLabel = tk.Label(window, text='Current Angle:', background='light blue')
 CurrentAngleLabel.grid(columnspan=3, row= ROW_CIRCLE + 6)
 
 
-##Button: Toggle Manual Agent Control/ Consensus Algorithm
-ControlLabel = tk.Label(text='Manual', bg='light blue', fg='#4863A0', width=7, height=1, highlightthickness=2)
-ControlLabel.grid(row=3, column=0, columnspan=4)
+'''
+Below: the buttons in the top half of the gui are made & 'gridded'/ shown
+'''
+###Save Shape Buttons Group (left)
+
+def store_shape():
+    loopy.store_current_shape("L")
+
+SaveShapeBtn = tk.Button(window,activebackground='navy blue', bg='#4863A0', fg='white', width=10, height=1, text='Store Shape',command=store_shape)
+SaveShapeBtn.grid(column = 2, row = 1, columnspan=4)
+
+ShapeNameLabel= tk.Label(text = 'Enter Shape Name:', background = 'light blue')
+ShapeNameLabel.grid(column=0, row=0, columnspan=4)
+
+ShapeChosen = tk.StringVar()   
+ShapeNameEntry = tk.Entry(window, textvariable=ShapeChosen, width=5)
+ShapeNameEntry.grid(column = 4, row = 0, columnspan=1)
 
 
+###Consensus Buttons group (middle)
 def control():
     if ControlLabel.config('text')[-1] == 'Manual':
         ControlLabel.config(text= 'Algorithm')
@@ -139,37 +152,38 @@ def control():
     else:
         ControlLabel.config(text= 'Manual')
         SetButton['state'] = tk.NORMAL
-    # PlotsFrame.UpdateGoalPlot( LetterClicked.get())
-
-
 ControlBtn= tk.Button(window,activebackground='navy blue', bg='#4863A0', fg='white', width=6, height=1, text='Control', command=control)
-ControlBtn.grid(row=2, column=0, columnspan=4)
+ControlBtn.grid(column = 12, row = 1, columnspan=4)
 
-def torque_off():
-    loopy.torque_off_all_agents()
-    update_lights()
+ChooseShapeLabel = tk.Label(window, text = 'Choose Shape:', background= 'light blue')
+ChooseShapeLabel.grid(column=10, row=0, columnspan=4)
 
-##Reboot Button
-def torque_on():
-    loopy.torque_on_all_agents()
-    update_lights()
+LetterOptions = ['L', 'O']
+LetterClicked = tk.StringVar()
+LetterClicked.set('L')
+LetterDrop = tk.OptionMenu(window, LetterClicked, *LetterOptions)
+LetterDrop.grid(column = 14, row = 0, columnspan=4)
 
-torque_on_btn= tk.Button(window,activebackground='navy blue', bg='#4863A0', fg='white', width=8, height=1, text='Torque On', command=torque_on)
-torque_on_btn.grid(row=2, column=3, columnspan=4)
+def LoopyMove():
+    curr_node = CircularAgentList.head
+    while curr_node.next:
+        present_angle = curr_node.data.get_present_angle()
+        if (present_angle - int(curr_node.data.desired_angle)) <= -16:
+            present_angle += 16
+        elif (present_angle - int(curr_node.data.desired_angle)) >= 16:
+            present_angle -= 16
+        else:
+            present_angle -= present_angle - int(curr_node.data.desired_angle)
+        curr_node.data.set_goal_angle(present_angle)
+        curr_node = curr_node.next
+        if curr_node == CircularAgentList.head:
+            break
+MoveBtn = tk.Button(window,activebackground='navy blue', bg='#4863A0', fg='white', width=6, height=1, text='Move',command=LoopyMove)
+MoveBtn.grid(row=2, column=12, columnspan=4)
 
-##Flexible Mode Button
-'''
-Loopy must be in flexible mode to recieve physical human input (to allow human to move it, changing the measurable load)
-'''
-torque_off_btn = tk.Button(window,activebackground='navy blue', bg='#4863A0', fg='white', width=8, height=1, text='Torque Off', command=torque_off)
-torque_off_btn.grid(row=2, column=6, columnspan=4)
 
-##Manual Control of Goal Angles
-#Agent Dropdown Selection
-        # Change the label text
-def showAgent():
-        SetAgentLabel.config(text=str(AgentClicked.get()))
-        # Agent Dropdown menu options
+###Manual Control Buttons Group (right)
+    #agent selection
 AgentOptions = range(36)
         # datatype of menu text
 AgentClicked = tk.IntVar()
@@ -177,44 +191,46 @@ AgentClicked = tk.IntVar()
 AgentClicked.set(0)
         # Create Dropdown menu
 AgentDrop = tk.OptionMenu(window, AgentClicked, *AgentOptions)
-AgentDrop.grid(column=20, row=2, columnspan=2)
-        # Create button, it will change label text
-SetAgentbutton = tk.Button(window, text="Select Agent", disabledforeground='#4863A0', activebackground='navy blue', bg='#4863A0', fg='white',command=showAgent).grid(column=24, row=2, columnspan=4)
-        # Create Label
-SetAgentLabel = tk.Label(window, text=" ", background='light blue', relief='groove')
-SetAgentLabel.grid(column=28, row=2, columnspan=4)
-
-#Angle Selection
-def showAngle():
-    SetAngleLabel.config(text=str(AngleChosen.get()))
-    # datatype of menu text
+AgentDrop.grid(column=25, row=0, columnspan=2)
+        
+    #angle selection
 AngleChosen = tk.IntVar()
     # initial menu text
 AngleChosen.set(0)
     # Create Text Entry
 AngleEntry = tk.Entry(window, textvariable=AngleChosen, width=5)
-AngleEntry.grid(column=20, row=3, columnspan=2)
+AngleEntry.grid(column=25, row=1, columnspan=2)
     # Create button, it will change label text
-SetAnglebutton = tk.Button(window, text="Select Angle",disabledforeground='#4863A0', activebackground='navy blue', bg='#4863A0', fg='white',command= showAngle).grid(column=24, row=3, columnspan=4)
-    # Create Label
-SetAngleLabel = tk.Label(window, text=" ", background='light blue', relief='groove')
-SetAngleLabel.grid(column=28, row=3, columnspan=4)
 
-#Set Angle to Agent
+    #Set Angle to Agent
 def SetAngleToAgent():
     loopy.agents[AgentClicked.get()].desired_angle = AngleChosen.get()
     loopy.agents[AgentClicked.get()].set_goal_angle(AngleChosen.get())
     AngleChosen.set(0)
-    AgentClicked.set(0)
-    showAgent()
-    showAngle()
+    AgentClicked.set(0)   
 SetButton = tk.Button(window,text="Set Goal Angle", activebackground='navy blue', bg='#4863A0', fg='white', disabledforeground='#4863A0', command= SetAngleToAgent)
-SetButton.grid(column=24, row=4, columnspan=4, pady=10)
+SetButton.grid(column=24, row=2, columnspan=4, pady=10)
+
+
+###Torque Buttons Group (bottom middle)
+
+def torque_off():
+    loopy.torque_off_all_agents()
+    update_lights()
+def torque_on():
+    loopy.torque_on_all_agents()
+    update_lights()
+
+torque_on_btn= tk.Button(window,activebackground='navy blue', bg='#4863A0', fg='white', width=8, height=1, text='Torque On', command=torque_on)
+torque_on_btn.grid(column=10, row=5, columnspan=4)
+
+torque_off_btn = tk.Button(window,activebackground='navy blue', bg='#4863A0', fg='white', width=8, height=1, text='Torque Off', command=torque_off)
+torque_off_btn.(column = 14, row = 5, columnspan=4) 
+
 
 
 ######Ave Consensus
-        ##L shape
-
+       
 def create_letter_l():
     LetterList_NewL = []
     loaded_shape = open("Loopy_Shapes/Loopy_" + str("L") + ".csv", "r")
@@ -225,19 +241,8 @@ def create_letter_l():
 
     return LetterList_NewL
 
-LetterListL = [90,180,180,90,180,180,180,180,180,180,180,270,180,180,180,180,90,180,180,90,180,180,180,180,180,180,90,180,180,180,180,180,180,180,180,180]
         ##O shape
 LetterListO = [170,170,170,170,170,170,170,170,170,170,170,170,170,170,170,170,170,170,170,170,170,170,170,170,170,170,170,170,170,170,170,170,170,170,170,170]
-
-LetterOptions = ['L', 'O']
-        # datatype of menu text
-LetterClicked = tk.StringVar()
-        # initial menu text
-LetterClicked.set('L')
-        # Create Dropdown menu
-LetterDrop = tk.OptionMenu(window, LetterClicked, *LetterOptions)
-LetterDrop.grid(column=4, row=3, columnspan=2)
-
 
 def AveCon():
     LetterList = []
@@ -333,48 +338,8 @@ class CircularList(object):
 CircularAgentList = CircularList()
 for agent in loopy.agents:
     CircularAgentList.insert_end(agent)
-##
 
-
-##Move to Formation##
-def LoopyMove():
-    curr_node = CircularAgentList.head
-
-    while curr_node.next:
-        present_angle = curr_node.data.get_present_angle()
-
-        if (present_angle - int(curr_node.data.desired_angle)) <= -16:
-            present_angle += 16
-
-        elif (present_angle - int(curr_node.data.desired_angle)) >= 16:
-            present_angle -= 16
-
-        else:
-            present_angle -= present_angle - int(curr_node.data.desired_angle) ##needs to also write to servo to move
-
-        curr_node.data.set_goal_angle(present_angle)
-
-        curr_node = curr_node.next
-        if curr_node == CircularAgentList.head:
-            break
-        
     
-    # update_current_angle_list()
-    # PlotsFrame.canvas.delete()
-    # PlotsFrame2 = PlotFrame.PlotFrame(window, points_from_angles(CurrentAngleList)[0], points_from_angles(CurrentAngleList)[1])
-
-
-def store_shape():
-    loopy.store_current_shape("L")
-
-
-MoveBtn = tk.Button(window,activebackground='navy blue', bg='#4863A0', fg='white', width=6, height=1, text='Move',command=LoopyMove)
-MoveBtn.grid(row=4, column=0, columnspan=4)
-
-
-store_shape_btn = tk.Button(window,activebackground='navy blue', bg='#4863A0', fg='white', width=10, height=1, text='Store Shape',command=store_shape)
-store_shape_btn.grid(row= 4, column= 5, columnspan=4)
-
 
 #######
 
