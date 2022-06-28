@@ -230,12 +230,9 @@ def EconConsensus(LetterList, CirList):
         agent = curr_node.data
         nextAgent = curr_node.next.data
         nextnextAgent = curr_node.next.next.data
-        if min(agentErrorSums(nextAgent)) < min(agentErrorSums(nextnextAgent)) & min(agentErrorSums(nextAgent)) < min(agentErrorSums(agent)):
-            boss = nextAgent
-        elif min(agentErrorSums(agent)) < min(agentErrorSums(nextAgent)) & min(agentErrorSums(agent)) < min(agentErrorSums(nextnextAgent)):
-            boss = agent
-        elif min(agentErrorSums(nextnextAgent)) < min(agentErrorSums(agent)) & min(agentErrorSums(nextnextAgent)) < min(agentErrorSums(nextAgent)):
-            boss = nextnextAgent
+        agentBeliefErrorList = [min(agentErrorSums(agent)), min(agentErrorSums(nextAgent)), min(agentErrorSums(nextnextAgent))]
+        if agentBeliefErrorList[0] != agentBeliefErrorList[1] & agentBeliefErrorList[0] != agentBeliefErrorList[2] & agentBeliefErrorList[1] != agentBeliefErrorList[2]:
+            boss = min(agentBeliefErrorList)
         ## if two are the minimum then randomly pick one
         elif min(agentErrorSums(nextAgent)) == min(agentErrorSums(agent)):
             choice = random.randint(0,2)  #return 0 or 1
