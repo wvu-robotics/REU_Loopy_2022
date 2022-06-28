@@ -195,8 +195,7 @@ def AveCon():
                 break
     AssignOrientation(CircularAgentList)
 
-##'Economy' Consensus Idea:
-
+###Economic Consensus
 def agentErrorSums(agent):
     # returns errorList of sums (of len3 error lists' abs)
     agentSumList = []
@@ -259,15 +258,17 @@ def EconConsensus(LetterList, CirList):
 
         ## boss assigns movement to rest of neighborhood
         if boss == agent:
-            MoveStep = agent.errorList[2]
+            MoveStep = agent.errorList[agentErrorSums(agent).index(min(agentErrorSums(agent)))][2]
             #nextAgent move MoveStep
             nextAgent.set_goal_angle(nextAgent.get_present_angle() + MoveStep)
             #nextnextAgent move -(MoveStep)
             nextnextAgent.set_goal_angle(nextnextAgent.get_present_angle() - MoveStep)
             pass
         elif boss == nextAgent:
-            MoveStep = min([nextAgent.errorList[0], nextAgent.errorList[2]], key = abs)
-            MoveIndex = agent.errorList.index(MoveStep)
+            moveoptions = [nextAgent.errorList[agentErrorSums(nextAgent).index(min(agentErrorSums(nextAgent)))][0],
+                           nextAgent.errorList[agentErrorSums(nextAgent).index(min(agentErrorSums(nextAgent)))][2]]
+            MoveStep = min(moveoptions)
+            MoveIndex = moveoptions.index(MoveStep)
             if MoveIndex == 0:
                 #agent move MoveStep
                 agent.set_goal_angle(agent.get_present_angle() + MoveStep)
@@ -279,7 +280,7 @@ def EconConsensus(LetterList, CirList):
                 #agent move -(MoveStep)
                 agent.set_goal_angle(agent.get_present_angle() - MoveStep)
         elif boss == nextnextAgent:
-            MoveStep = nextnextAgent.errorList[0]
+            MoveStep = nextnextAgent.errorList[agentErrorSums(nextnextAgent).index(min(agentErrorSums(nextnextAgent)))][0]
             #nextAgent move MoveStep
             nextAgent.set_goal_angle(nextAgent.get_present_angle() + MoveStep)
             #agent move -(MoveStep)
