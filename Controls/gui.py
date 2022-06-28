@@ -195,6 +195,96 @@ def AveCon():
                 break
     AssignOrientation(CircularAgentList)
 
+##'Economy' Consensus Idea:
+
+def agentErrorSums(agent):
+    # returns errorList of sums (of len3 error lists' abs)
+    agentSumList = []
+    for list in agent.errorList:
+        agentSumList.append(sum(map(abs, list)))
+    return agentSumList
+
+def EconConsensus(LetterList, CirList):
+    ## LetterList = list of angles; CirList = circular list of agents
+    ##calulate error list(of lists) for neighborhood of agent.next
+    curr_node = CirList.head
+    while curr_node.next:
+        agent = curr_node.data
+        nextAgent = curr_node.next.data
+        nextnextAgent = curr_node.next.next.data
+        nextAgent.errorList = []
+        for goal in LetterList:
+            index = index(goal)
+            leftError = agent.angle - LetterList(index-1)
+            selfError = nextAgent.angle - LetterList(index)
+            rightError = nextnextAgent.angle - LetterList(index+1)
+            CurrentErrorList = [leftError, selfError, rightError]
+            nextAgent.errorList.append(CurrentErrorList)
+        curr_node = curr_node.next
+        if curr_node == CirList.head:
+            break
+
+    #assign temp 'boss' of neighborhood and movements
+        #sum(map(abs, your_list))  finds the sum of abs of each list item
+    curr_node = CirList.head
+    while curr_node.next:
+        agent = curr_node.data
+        nextAgent = curr_node.next.data
+        nextnextAgent = curr_node.next.next.data
+        if min(agentErrorSums(nextAgent)) < min(agentErrorSums(nextnextAgent)) & min(agentErrorSums(nextAgent)) < min(agentErrorSums(agent)):
+            boss = nextAgent
+        elif min(agentErrorSums(agent)) < min(agentErrorSums(nextAgent)) & min(agentErrorSums(agent)) < min(agentErrorSums(nextnextAgent)):
+            boss = agent
+        elif min(agentErrorSums(nextnextAgent)) < min(agentErrorSums(agent)) & min(agentErrorSums(nextnextAgent)) < min(agentErrorSums(nextAgent)):
+            boss = nextnextAgent
+        ## if two are the minimum then randomly pick one
+        elif min(agentErrorSums(nextAgent)) == min(agentErrorSums(agent)):
+            choice = random.randint(0,2)  #return 0 or 1
+            if choice == 0:
+                boss = nextAgent
+            elif choice == 1:
+                boss = agent
+        elif min(agentErrorSums(nextAgent)) == min(agentErrorSums(nextnextAgent)):
+            choice = random.randint(0,2)  #return 0 or 1
+            if choice == 0:
+                boss = nextAgent
+            elif choice == 1:
+                boss = nextnextAgent
+        elif min(agentErrorSums(nextnextAgent)) == min(agentErrorSums(agent)):
+            choice = random.randint(0,2)  #return 0 or 1
+            if choice == 0:
+                boss = nextnextAgent
+            elif choice == 1:
+                boss = agent
+
+        ## boss assigns movement to rest of neighborhood
+        if boss == agent:
+            MoveStep = agent.errorList[2]
+            #nextAgent move MoveStep
+            nextAgent.set_goal_angle(nextAgent.get_present_angle() + MoveStep)
+            #nextnextAgent move -(MoveStep)
+            nextnextAgent.set_goal_angle(nextnextAgent.get_present_angle() - MoveStep)
+            pass
+        elif boss == nextAgent:
+            MoveStep = min([nextAgent.errorList[0], nextAgent.errorList[2]], key = abs)
+            MoveIndex = agent.errorList.index(MoveStep)
+            if MoveIndex == 0:
+                #agent move MoveStep
+                agent.set_goal_angle(agent.get_present_angle() + MoveStep)
+                #nextnextAgent move -(MoveStep)
+                nextnextAgent.set_goal_angle(nextnextAgent.get_present_angle() - MoveStep)
+            elif MoveIndex == 1:
+                #nextnextAgent move MoveStep
+                nextnextAgent.set_goal_angle(nextnextAgent.get_present_angle() + MoveStep)
+                #agent move -(MoveStep)
+                agent.set_goal_angle(agent.get_present_angle() - MoveStep)
+        elif boss == nextnextAgent:
+            MoveStep = nextnextAgent.errorList[0]
+            #nextAgent move MoveStep
+            nextAgent.set_goal_angle(nextAgent.get_present_angle() + MoveStep)
+            #agent move -(MoveStep)
+            agent.set_goal_angle(agent.get_present_angle() - MoveStep)
+##
 
 ###Circular List###
 class Node(object):
