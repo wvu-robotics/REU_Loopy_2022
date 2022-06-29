@@ -20,28 +20,6 @@ window.title = "Loopy GUI"
 window.geometry = "1080x350"
 window.configure(bg="light blue")
 
-CurrentAngleList = [0]
-def update_current_angle_list():
-    for i in loopy.agents:
-        CurrentAngleList.append(i.get_present_position() * 360 / 4096 )
-update_current_angle_list()
-
-def points_from_angles(AngleList):
-    #anglelist - list of angles
-    #length - length of the line per point
-    Xpoints = [0]
-    Ypoints = [0]
-    length = 5
-    for angle in AngleList:
-        index = AngleList.index(angle)
-        nexty = Ypoints.__getitem__(index) + length * math.sin(math.radians(angle + AngleList.__getitem__(index-1)))
-        nextx = length * math.cos(math.radians(angle + AngleList.__getitem__(index-1)))
-        Xpoints.append(nextx)
-        Ypoints.append(nexty)
-    return [Xpoints, Ypoints]
-
-#PlotsFrame = PlotFrame.PlotFrame(window, points_from_angles(CurrentAngleList)[0], points_from_angles(CurrentAngleList)[0])
-
 '''
 Below: rows of lights, agent numbers, agent load, current angle, & goal angle are made & shown
 '''
