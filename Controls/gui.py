@@ -16,6 +16,7 @@ loopy = Loopy.Loopy(NUMBER_OF_AGENTS)
 
 
 window = tk.Tk()
+###window.title doesnt work, needs to be configure or something
 window.title = "Loopy GUI"
 window.geometry = "1080x350"
 window.configure(bg="light blue")
