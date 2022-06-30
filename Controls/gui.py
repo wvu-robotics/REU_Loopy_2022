@@ -1,10 +1,8 @@
 from time import sleep
 import tkinter as tk
 from threading import Thread
-from matplotlib.pyplot import title
-import PlotFrame 
-import math
 import Loopy
+import random
 
 NUMBER_OF_AGENTS = 36
 LOAD_WARNING_THRESHOLD = 700 # 70%
