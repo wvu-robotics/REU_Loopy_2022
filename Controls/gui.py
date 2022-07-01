@@ -171,7 +171,8 @@ def AveCon():
             if curr_node == CirList.head:
                 break
     AssignOrientation(CircularAgentList)
-
+    
+    
 ###Economic Consensus
 def agentErrorSums(agent):
     # returns errorList of sums (of len3 error lists' abs)
@@ -180,48 +181,62 @@ def agentErrorSums(agent):
         agentSumList.append(sum(map(abs, list)))
     return agentSumList
 
-def EconConsensus(LetterList):
-    ## LetterList = list of angles
+def GoalAngles():
+    GoalAngles  = []
+    for agent in AgentList:
+        GoalAngles.append(agent.desired_angle)
+    return GoalAngles
+
+''' new version for bulk read/write'''
+def EconConsensus(LetterList, AnglesList):
+## LetterList = list of angles; CirList = circular list of agents; Current Angles list = bulk read list
 ##calulate error list(of lists) for neighborhood of agent.next
+    #first assign each angle to the corresponding agent in order to utilize the circular list
+    for agent in AgentList:
+        agent.angle = AnglesList[AgentList.index(agent)]
+
+    #then find error for each neighborhood(neighborhhod of nextAgent) for each orientation
     curr_node = CircularAgentList.head
     while curr_node.next:
         agent = curr_node.data
         nextAgent = curr_node.next.data
         nextnextAgent = curr_node.next.next.data
         nextAgent.errorList = []
-        for goal in LetterList:
-            index = index(goal)
-            leftError = agent.angle - LetterList(index-1)
-            selfError = nextAgent.angle - LetterList(index)
-            rightError = nextnextAgent.angle - LetterList(index+1)
+        for i in range(len(LetterList)):
+            leftError = agent.angle - LetterList(i-1)
+            selfError = nextAgent.angle - LetterList(i)
+            rightError = nextnextAgent.angle - LetterList(i+1)
             CurrentErrorList = [leftError, selfError, rightError]
             nextAgent.errorList.append(CurrentErrorList)
+
         curr_node = curr_node.next
         if curr_node == CircularAgentList.head:
             break
-            
-## assign movements
+
+        #now assign movements based on these errors
         curr_node = CircularAgentList.head
         while curr_node.next:
             agent = curr_node.data
             nextAgent = curr_node.next.data
+            NeighborhoodIndex = AgentList.index(nextAgent)
             nextnextAgent = curr_node.next.next.data
-            nextAgentBeliefIndex = agentErrorSums(nextAgent).index(min(agentErrorSums(nextAgent)))
             NeighborhoodBeliefsList = [min(agentErrorSums(agent)),min(agentErrorSums(nextAgent)),min(agentErrorSums(nextnextAgent))]
             if NeighborhoodBeliefsList.index(max(NeighborhoodBeliefsList)) == 1:
                 pass #no movement this timestep if middle agent has most error (let it be moved by other neighborhoods)
             else:
                 #middle agent moves to belief angle, neighbor with belief with most error moves opposite
-                MoveStep = nextAgent.errorList[nextAgentBeliefIndex][1]
-                nextAgent.set_goal_angle(nextAgent.get_present_angle + MoveStep)
+                MoveStep = nextAgent.errorList[agentErrorSums(nextAgent).index(min(agentErrorSums(nextAgent)))][1]
+                nextAgent.desired_angle = nextAgent.get_present_angle + MoveStep
                 if NeighborhoodBeliefsList.index(max(NeighborhoodBeliefsList)) == 0:
-                    agent.set_goal_angle(agent.get_present_angle - MoveStep)
+                    agent.desired_angle = agent.get_present_angle - MoveStep
                 elif NeighborhoodBeliefsList.index(max(NeighborhoodBeliefsList)) == 2:
-                    nextnextAgent.set_goal_angle(nextnextAgent.get_present_angle - MoveStep)
+                    nextnextAgent.desired_angle = nextnextAgent.get_present_angle - MoveStep
                 curr_node = curr_node.next
+                return GoalAngles()
                 ##remove below 2 lines to run continuously, porbably should also add a delay
-                if curr_node == CircularAgentList.head:
+            if curr_node == CircularAgentList.head:
                     break
+
 ##
 
 ###Circular List###
