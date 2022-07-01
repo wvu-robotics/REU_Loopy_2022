@@ -180,10 +180,10 @@ def agentErrorSums(agent):
         agentSumList.append(sum(map(abs, list)))
     return agentSumList
 
-def EconConsensus(LetterList, CirList):
-    ## LetterList = list of angles; CirList = circular list of agents
-    ##calulate error list(of lists) for neighborhood of agent.next
-    curr_node = CirList.head
+def EconConsensus(LetterList):
+    ## LetterList = list of angles
+##calulate error list(of lists) for neighborhood of agent.next
+    curr_node = CircularAgentList.head
     while curr_node.next:
         agent = curr_node.data
         nextAgent = curr_node.next.data
@@ -197,68 +197,31 @@ def EconConsensus(LetterList, CirList):
             CurrentErrorList = [leftError, selfError, rightError]
             nextAgent.errorList.append(CurrentErrorList)
         curr_node = curr_node.next
-        if curr_node == CirList.head:
+        if curr_node == CircularAgentList.head:
             break
-
-    #assign temp 'boss' of neighborhood and movements
-        #sum(map(abs, your_list))  finds the sum of abs of each list item
-    curr_node = CirList.head
-    while curr_node.next:
-        agent = curr_node.data
-        nextAgent = curr_node.next.data
-        nextnextAgent = curr_node.next.next.data
-        agentBeliefErrorList = [min(agentErrorSums(agent)), min(agentErrorSums(nextAgent)), min(agentErrorSums(nextnextAgent))]
-        if agentBeliefErrorList[0] != agentBeliefErrorList[1] & agentBeliefErrorList[0] != agentBeliefErrorList[2] & agentBeliefErrorList[1] != agentBeliefErrorList[2]:
-            boss = min(agentBeliefErrorList)
-        ## if two are the minimum then randomly pick one
-        elif min(agentErrorSums(nextAgent)) == min(agentErrorSums(agent)):
-            choice = random.randint(0,2)  #return 0 or 1
-            if choice == 0:
-                boss = nextAgent
-            elif choice == 1:
-                boss = agent
-        elif min(agentErrorSums(nextAgent)) == min(agentErrorSums(nextnextAgent)):
-            choice = random.randint(0,2)  #return 0 or 1
-            if choice == 0:
-                boss = nextAgent
-            elif choice == 1:
-                boss = nextnextAgent
-        elif min(agentErrorSums(nextnextAgent)) == min(agentErrorSums(agent)):
-            choice = random.randint(0,2)  #return 0 or 1
-            if choice == 0:
-                boss = nextnextAgent
-            elif choice == 1:
-                boss = agent
-
-        ## boss assigns movement to rest of neighborhood
-        if boss == agent:
-            MoveStep = agent.errorList[agentErrorSums(agent).index(min(agentErrorSums(agent)))][2]
-            #nextAgent move MoveStep
-            nextAgent.set_goal_angle(nextAgent.get_present_angle() + MoveStep)
-            #nextnextAgent move -(MoveStep)
-            nextnextAgent.set_goal_angle(nextnextAgent.get_present_angle() - MoveStep)
-            pass
-        elif boss == nextAgent:
-            moveoptions = [nextAgent.errorList[agentErrorSums(nextAgent).index(min(agentErrorSums(nextAgent)))][0],
-                           nextAgent.errorList[agentErrorSums(nextAgent).index(min(agentErrorSums(nextAgent)))][2]]
-            MoveStep = min(moveoptions)
-            MoveIndex = moveoptions.index(MoveStep)
-            if MoveIndex == 0:
-                #agent move MoveStep
-                agent.set_goal_angle(agent.get_present_angle() + MoveStep)
-                #nextnextAgent move -(MoveStep)
-                nextnextAgent.set_goal_angle(nextnextAgent.get_present_angle() - MoveStep)
-            elif MoveIndex == 1:
-                #nextnextAgent move MoveStep
-                nextnextAgent.set_goal_angle(nextnextAgent.get_present_angle() + MoveStep)
-                #agent move -(MoveStep)
-                agent.set_goal_angle(agent.get_present_angle() - MoveStep)
-        elif boss == nextnextAgent:
-            MoveStep = nextnextAgent.errorList[agentErrorSums(nextnextAgent).index(min(agentErrorSums(nextnextAgent)))][0]
-            #nextAgent move MoveStep
-            nextAgent.set_goal_angle(nextAgent.get_present_angle() + MoveStep)
-            #agent move -(MoveStep)
-            agent.set_goal_angle(agent.get_present_angle() - MoveStep)
+            
+## assign movements
+        curr_node = CircularAgentList.head
+        while curr_node.next:
+            agent = curr_node.data
+            nextAgent = curr_node.next.data
+            nextnextAgent = curr_node.next.next.data
+            nextAgentBeliefIndex = agentErrorSums(nextAgent).index(min(agentErrorSums(nextAgent)))
+            NeighborhoodBeliefsList = [min(agentErrorSums(agent)),min(agentErrorSums(nextAgent)),min(agentErrorSums(nextnextAgent))]
+            if NeighborhoodBeliefsList.index(max(NeighborhoodBeliefsList)) == 1:
+                pass #no movement this timestep if middle agent has most error (let it be moved by other neighborhoods)
+            else:
+                #middle agent moves to belief angle, neighbor with belief with most error moves opposite
+                MoveStep = nextAgent.errorList[nextAgentBeliefIndex][1]
+                nextAgent.set_goal_angle(nextAgent.get_present_angle + MoveStep)
+                if NeighborhoodBeliefsList.index(max(NeighborhoodBeliefsList)) == 0:
+                    agent.set_goal_angle(agent.get_present_angle - MoveStep)
+                elif NeighborhoodBeliefsList.index(max(NeighborhoodBeliefsList)) == 2:
+                    nextnextAgent.set_goal_angle(nextnextAgent.get_present_angle - MoveStep)
+                curr_node = curr_node.next
+                ##remove below 2 lines to run continuously, porbably should also add a delay
+                if curr_node == CircularAgentList.head:
+                    break
 ##
 
 ###Circular List###
