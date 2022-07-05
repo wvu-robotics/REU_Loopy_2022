@@ -221,16 +221,27 @@ def EconConsensus(LetterList, AnglesList):
             NeighborhoodIndex = AgentList.index(nextAgent)
             nextnextAgent = curr_node.next.next.data
             NeighborhoodBeliefsList = [min(agentErrorSums(agent)),min(agentErrorSums(nextAgent)),min(agentErrorSums(nextnextAgent))]
+            MiddleMoveStep = nextAgent.errorList[agentErrorSums(nextAgent).index(min(agentErrorSums(nextAgent)))][1]  # the error of middle agent w/ belief
             if NeighborhoodBeliefsList.index(max(NeighborhoodBeliefsList)) == 1:
                 pass #no movement this timestep if middle agent has most error (let it be moved by other neighborhoods)
-            else:
-                #middle agent moves to belief angle, neighbor with belief with most error moves opposite
-                MoveStep = nextAgent.errorList[agentErrorSums(nextAgent).index(min(agentErrorSums(nextAgent)))][1]
-                nextAgent.desired_angle = nextAgent.get_present_angle + MoveStep
-                if NeighborhoodBeliefsList.index(max(NeighborhoodBeliefsList)) == 0:
-                    agent.desired_angle = agent.get_present_angle - MoveStep
-                elif NeighborhoodBeliefsList.index(max(NeighborhoodBeliefsList)) == 2:
+            elif MiddleMoveStep == 0:
+                #move neighbor with least error with your belief to goal and other neighbor +/-
+                MiddleBelief = nextAgent.errorList[agentErrorSums(nextAgent).index(min(agentErrorSums(nextAgent)))]
+                if max(MiddleBelief) == 0:
+                    MoveStep = nextAgent.errorList[agentErrorSums(nextAgent).index(min(agentErrorSums(nextAgent)))][2]
+                    agent.desired_angle = agent.get_present_angle + MoveStep
                     nextnextAgent.desired_angle = nextnextAgent.get_present_angle - MoveStep
+                elif max(MiddleBelief) == 2:
+                    MoveStep = nextAgent.errorList[agentErrorSums(nextAgent).index(min(agentErrorSums(nextAgent)))][0]
+                    agent.desired_angle = agent.get_present_angle - MoveStep
+                    nextnextAgent.desired_angle = nextnextAgent.get_present_angle + MoveStep
+            else:
+                #middle agent moves to belief angle, neighbor with belief with most error moves opposite                
+                nextAgent.desired_angle = nextAgent.get_present_angle - MiddleMoveStep
+                if NeighborhoodBeliefsList.index(max(NeighborhoodBeliefsList)) == 0:
+                    agent.desired_angle = agent.get_present_angle + MiddleMoveStep
+                elif NeighborhoodBeliefsList.index(max(NeighborhoodBeliefsList)) == 2:
+                    nextnextAgent.desired_angle = nextnextAgent.get_present_angle + MiddleMoveStep
                 curr_node = curr_node.next
                 return GoalAngles()
                 ##remove below 2 lines to run continuously, porbably should also add a delay
