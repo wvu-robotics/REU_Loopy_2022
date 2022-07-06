@@ -339,6 +339,16 @@ LetterClicked.set('L')
 LetterDrop = tk.OptionMenu(window, LetterClicked, *LetterOptions)
 LetterDrop.grid(column = 14, row = 0, columnspan=4)
 
+
+'''new Loopy move for bulk write:
+
+def LoopyMove():
+    pass GoalAngles() (returns list) to bulk write function
+        
+so ave con should still work as is theoretically 
+'''
+
+''' Old Loopy Move:
 def LoopyMove():
     curr_node = CircularAgentList.head
     while curr_node.next:
@@ -355,7 +365,7 @@ def LoopyMove():
             break
 MoveBtn = tk.Button(window,activebackground='navy blue', bg='#4863A0', fg='white', width=6, height=1, text='Move',command=LoopyMove)
 MoveBtn.grid(row=2, column=12, columnspan=4)
-
+'''
 
 ###Manual Control Buttons Group (right)
     #agent selection
