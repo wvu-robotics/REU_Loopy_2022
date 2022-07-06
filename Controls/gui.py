@@ -363,9 +363,10 @@ def LoopyMove():
         curr_node = curr_node.next
         if curr_node == CircularAgentList.head:
             break
+'''            
 MoveBtn = tk.Button(window,activebackground='navy blue', bg='#4863A0', fg='white', width=6, height=1, text='Move',command=LoopyMove)
 MoveBtn.grid(row=2, column=12, columnspan=4)
-'''
+
 
 ###Manual Control Buttons Group (right)
     #agent selection
