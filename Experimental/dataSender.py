@@ -1,5 +1,17 @@
+
+
+
+
+
+
+from genericpath import exists
 from time import sleep
+from turtle import shape
 from dynamixel_sdk import * 
+
+
+
+
 
 AGENTS = 36 
 
@@ -16,10 +28,11 @@ LEN_TORQUE_ENABLE = 1 # bytes
 #LOAD VALUES
 ADDR_PRESENT_LOAD = 126
 
+#Goal Position Values 
 ADDR_GOAL_POSITION = 116
 LEN_GOAL_POSITION = 4 # bytes
 
-#PRESENT POSITION VALUES 
+#Present Position Values  
 ADDR_PRESENT_POSITION = 132 
 LEN_PRESENT_POSITION = 4 # bytes
 
@@ -39,7 +52,7 @@ group0_write = GroupSyncWrite(port0, pack0, ADDR_GOAL_POSITION, LEN_GOAL_POSITIO
 group1_write = GroupSyncWrite(port1, pack1, ADDR_GOAL_POSITION, LEN_GOAL_POSITION)
 
 
-def torque_control( state ):
+def torque_control(state):
 
     for n in range(AGENTS):
         if n < 18:
@@ -48,10 +61,10 @@ def torque_control( state ):
             port_hand = port1; packet_hand = pack1
 
         comm_result, error_result = packet_hand.write1ByteTxRx(port_hand, n, ADDR_TORQUE_CONTROL, state)
-        print( "Agent " + str(n) + " " + packet_hand.getTxRxResult(comm_result))
+        # print( "Agent " + str(n) + " " + packet_hand.getTxRxResult(comm_result))
 
         if error_result != 0:
-            print( packet_hand.getRxPacketError(error_result))
+            print( "Agent" + str(n) + " " + packet_hand.getRxPacketError(error_result))
 
 
 def collect_positions():
@@ -77,12 +90,12 @@ def collect_positions():
     return positions  
 
 
-def set_positions( proposed_shape: list ):
+def set_positions(proposed_shape):
 
     # present_position_sum = 0
     # present_shape = collect_positions()
-    # for position in range(len(present_shape)):
-    #     present_position_sum += present_shape[position]
+    # for pos in range(len(present_shape)):
+    #     present_position_sum += present_shape[pos]
 
     # proposed_position_sum = 0
     # for position in range(len(proposed_shape)):
@@ -92,7 +105,7 @@ def set_positions( proposed_shape: list ):
     #     print("The proposed shape has too many positions!")
     #     return
 
-    # if abs(present_position_sum - proposed_position_sum) != 0:
+    # if abs(present_position_sum - proposed_position_sum) > 36:
     #     print(str(present_position_sum))
     #     print(str(proposed_position_sum))
     #     print("The sum of the positions is too high!")
@@ -110,7 +123,7 @@ def set_positions( proposed_shape: list ):
     group1_write.txPacket()
 
 
-def create_shape_list( shape_name ):
+def create_shape_list(shape_name):
     """
     Loads a saved shape from a csv file and Loopy recreates it
 
@@ -134,7 +147,6 @@ def create_shape_list( shape_name ):
     return returned_shape
 
 
-
 def save_current_shape(shape_name):
     """
     Stores the current shape of Loopy in a csv file   
@@ -156,7 +168,10 @@ def save_current_shape(shape_name):
 
 
 supported_shapes = ["Circle", "Square", "Triangle"]
+supported_shapes_with_letters = ["A","Circle","E","I","N","Q","R","Square","T","Triangle","U","V","W","Y"]
 wvu = ['W','V','U']
+nate = ['N','A','T','E']
+
 
 def shape_selector():
     """
@@ -168,14 +183,21 @@ def shape_selector():
         None
     """
     while True:
-        shape = input("Enter a shape name " + str(supported_shapes) + " : \n")
-        torque_control(TORQUE_ENABLE)
-        set_positions(create_shape_list(shape))
-        sleep(1)
-        torque_control(TORQUE_DISABLE)
+    
+        shape = input("Enter a shape name " + str(supported_shapes_with_letters) + " : \n")
 
+        try:
+            torque_control(TORQUE_ENABLE)
+            set_positions(create_shape_list(shape))
+            sleep(1)
+            torque_control(TORQUE_DISABLE)
+            exit()
+        except FileNotFoundError:
+            print("This is not a supported shape. Please enter a new shape")
+            torque_control(TORQUE_DISABLE)
 
-def shape_rotator():
+        
+def shape_rotator(shape_list):
     """
     Prompts the user for a supported shape and creates it on loopy
 
@@ -185,19 +207,63 @@ def shape_rotator():
         None
     """
     while True:
+        
         torque_control(TORQUE_ENABLE)
-        for shapes in wvu:
+
+        for shapes in shape_list:
             set_positions(create_shape_list(shapes))
             sleep(1)
+
         torque_control(TORQUE_DISABLE)
 
+        if exit() == True:
+            break 
+
+
 def mass_shape_saving():
+    """
+    Allows for a user to create new shapes saved in the "Loopy_Shapes" folder
+
+    Parameters:
+        None
+    Returns:
+        None
+    """
     while True:
         torque_control(TORQUE_DISABLE)
         letter = input("What character would you like to save? \n")
         save_current_shape( letter )
 
+
+def exit():
+    """
+    Creates a simple exit prompt that returns True or False 
+
+    Parameters:
+        None
+    Returns:
+        True - want to exit
+        False - do not want to exit 
+    """
+    chosen = input("Would you like to exit? Y/N \n")
+    if chosen.upper() == "Y":
+        print("Exiting current menu")
+        return True
+    elif chosen.upper() == "N":
+        return False
+    else:
+        print("Please select a valid response")
+        exit()
+
+
+
+
 shape_selector()
+# shape_rotator(supported_shapes)
+
+ 
+
+
 
 
 # class InvalidPositionSumError(Exception):
@@ -220,8 +286,15 @@ shape_selector()
 
 
 
+"""
+Future controls for loopy
+
+using average consensus for slower movements and 
+
+may need to include current and time 
 
 
+"""
  
 
 
