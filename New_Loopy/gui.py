@@ -346,22 +346,22 @@ def LoopyMove():
 
 
 
-###Old Loopy Move:
-def LoopyMove():
-    curr_node = CircularAgentList.head
-    while curr_node.next:
-        present_angle = curr_node.data.get_present_angle()
-        if (present_angle - int(curr_node.data.desired_angle)) <= -16:
-            present_angle += 16
-        elif (present_angle - int(curr_node.data.desired_angle)) >= 16:
-            present_angle -= 16
-        else:
-            present_angle -= present_angle - int(curr_node.data.desired_angle)
-        curr_node.data.set_goal_angle(present_angle)
-        curr_node = curr_node.next
-        if curr_node == CircularAgentList.head:
-            break
-#
+# ## Old Loopy Move:
+# def LoopyMove():
+#     curr_node = CircularAgentList.head
+#     while curr_node.next:
+#         present_angle = curr_node.data.get_present_angle()
+#         if (present_angle - int(curr_node.data.desired_angle)) <= -16:
+#             present_angle += 16
+#         elif (present_angle - int(curr_node.data.desired_angle)) >= 16:
+#             present_angle -= 16
+#         else:
+#             present_angle -= present_angle - int(curr_node.data.desired_angle)
+#         curr_node.data.set_goal_angle(present_angle)
+#         curr_node = curr_node.next
+#         if curr_node == CircularAgentList.head:
+#             break
+# 
 
 MoveBtn = tk.Button(window,activebackground='navy blue', bg='#4863A0', fg='white', width=6, height=1, text='Move',command=LoopyMove)
 MoveBtn.grid(row=2, column=12, columnspan=4)
