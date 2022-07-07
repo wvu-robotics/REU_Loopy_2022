@@ -1,3 +1,4 @@
+from time import sleep
 from dynamixel_sdk import * 
 
 
@@ -63,7 +64,14 @@ def torque_control(state):
 
 
 def collect_positions():
+    """
+    Collects the current positions of the dynamixels and returns them in a list 
 
+    Parameters:
+        None
+    Returns:
+        None
+    """
     for n in range(AGENTS):
         if n < 18:
             group0_read.removeParam(n)
@@ -86,6 +94,14 @@ def collect_positions():
 
 
 def set_positions(proposed_shape):
+    """
+    Sets the dynamixels to a proposed shape
+
+    Parameters:
+        proposed_shape - a list of positions that the dynamixels will go to 
+    Returns:
+        None
+    """
 
     # present_position_sum = 0
     # present_shape = collect_positions()
@@ -253,7 +269,7 @@ def exit():
 
 
 
-shape_selector()
+# shape_selector()
 # shape_rotator(supported_shapes)
 
  
