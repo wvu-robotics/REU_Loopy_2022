@@ -136,7 +136,7 @@ def set_positions(proposed_shape):
 
 def create_shape_list(shape_name):
     """
-    Loads a saved shape from a csv file and Loopy recreates it
+    Loads a shape from a csv file and returns a list of position parameters for that shape 
 
     Parameters:
         saved_shape - shape saved in a csv file that will be loaded
