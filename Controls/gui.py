@@ -2,7 +2,7 @@ from time import sleep
 import tkinter as tk
 from threading import Thread
 import Loopy
-import random
+from Experimental.dataSender import *
 
 NUMBER_OF_AGENTS = 36
 LOAD_WARNING_THRESHOLD = 700 # 70%

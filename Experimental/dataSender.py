@@ -1,23 +1,13 @@
-
-
-
-
-
-
-from genericpath import exists
-from time import sleep
-from turtle import shape
 from dynamixel_sdk import * 
-
-
-
 
 
 AGENTS = 36 
 
+
 DEVICE0 = "COM3" # closest to screen (lower agent indexes)
 DEVICE1 = "COM4" # furthest from screen (higher agent indexes)
 BAUDRATE = 57600
+
 
 #TORQUE CONTROL VALUES
 TORQUE_ENABLE = 1
@@ -25,19 +15,24 @@ TORQUE_DISABLE = 0
 ADDR_TORQUE_CONTROL = 64
 LEN_TORQUE_ENABLE = 1 # bytes
 
+
 #LOAD VALUES
 ADDR_PRESENT_LOAD = 126
+
 
 #Goal Position Values 
 ADDR_GOAL_POSITION = 116
 LEN_GOAL_POSITION = 4 # bytes
 
+
 #Present Position Values  
 ADDR_PRESENT_POSITION = 132 
 LEN_PRESENT_POSITION = 4 # bytes
 
+
 DXL_MINIMUM_POSITION_VALUE  = 695       
 DXL_MAXIMUM_POSITION_VALUE  = 3405 
+
 
 port0 = PortHandler(DEVICE0); port0.openPort(); port0.setBaudRate(BAUDRATE)
 port1 = PortHandler(DEVICE1); port1.openPort(); port1.setBaudRate(BAUDRATE)
