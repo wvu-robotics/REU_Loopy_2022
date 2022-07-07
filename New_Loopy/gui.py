@@ -2,8 +2,11 @@ from time import sleep
 import tkinter as tk
 from threading import Thread
 import Loopy
-from Experimental.dataSender import *
+import Experimental.dataSender as dataSender
 
+
+
+AVE_CONSENSUS_ITERATIONS = 500
 NUMBER_OF_AGENTS = 36
 LOAD_WARNING_THRESHOLD = 700 # 70%
 UPDATE_LABELS_TIME = 100 # ms 
@@ -103,25 +106,13 @@ CurrentAngleLabel.grid(columnspan=3, row= ROW_CIRCLE + 6)
 
 ######Ave Consensus
        
-def create_letter_l():
-    LetterList_NewL = []
-    loaded_shape = open("Loopy_Shapes/Loopy_" + str("L") + ".csv", "r")
-
-    for id in range(loopy.agent_count):
-        current_line = loaded_shape.readline().split(",")
-        LetterList_NewL.append(int(int(current_line[1]) / 4096 * 360 ))
-
-    return LetterList_NewL
-
-        ##O shape
-LetterListO = [170,170,170,170,170,170,170,170,170,170,170,170,170,170,170,170,170,170,170,170,170,170,170,170,170,170,170,170,170,170,170,170,170,170,170,170]
-
 def AveCon():
-    LetterList = []
-    if LetterClicked.get() == 'L':
-        LetterList = create_letter_l()
-    elif LetterClicked.get() == 'O':
-        LetterList = LetterListO
+
+    current_shape = dataSender.collect_positions()
+
+    chosen_shape = LetterClicked.get()
+
+    LetterList = dataSender.create_shape_list(chosen_shape)
 
     #make an initial error list for each of 36 goals for each of 36 agents
     def error(CirList):
@@ -129,7 +120,7 @@ def AveCon():
         while curr_node.next:
            curr_node.data.ErrorList = []
            for j in LetterList:
-               error = abs(curr_node.data.get_present_angle() - j)
+               error = abs(current_shape[curr_node.data.id] - j)
                curr_node.data.ErrorList.append(error)
            curr_node = curr_node.next
            if curr_node == CirList.head:
@@ -140,6 +131,7 @@ def AveCon():
     def LocalAveError(CirList):
         curr_node = CirList.head
         while curr_node.next:
+            print("Calculating average local error for: " + curr_node.next.data.name)
             for j in curr_node.next.data.ErrorList:
                 my_error_index = curr_node.next.data.ErrorList.index(j)
                 if my_error_index == 0:
@@ -156,97 +148,101 @@ def AveCon():
                 break
 
 
-    for i in range(500):
+    for i in range(AVE_CONSENSUS_ITERATIONS):
         LocalAveError(CircularAgentList)
+    print("\nconsensus has been reached\n")
 
 
-    def AssignOrientation(CirList): ##assign chosen orientation to all agents
+    def AssignOrientation(CirList): # assign chosen orientation to all agents
         curr_node = CirList.head
         while curr_node.next:
+            print("Assinging an orientation for: " + curr_node.next.data.name)
             index = curr_node.data.name
             my_orientation = curr_node.data.ErrorList.index(min(curr_node.data.ErrorList))
             #print (str(index) + 'goal orient' + str(my_orientation))
-            curr_node.data.desired_angle = LetterList.__getitem__(my_orientation)
+            curr_node.data.desired_angle = LetterList[my_orientation]
             curr_node = curr_node.next
             if curr_node == CirList.head:
                 break
     AssignOrientation(CircularAgentList)
     
     
-###Economic Consensus
-def agentErrorSums(agent):
-    # returns errorList of sums (of len3 error lists' abs)
-    agentSumList = []
-    for list in agent.errorList:
-        agentSumList.append(sum(map(abs, list)))
-    return agentSumList
+# ###Economic Consensus
+# def agentErrorSums(agent):
+#     # returns errorList of sums (of len3 error lists' abs)
+#     agentSumList = []
+#     for list in agent.errorList:
+#         agentSumList.append(sum(map(abs, list)))
+#     return agentSumList
 
 def GoalAngles():
     GoalAngles  = []
-    for agent in AgentList:
+    for agent in loopy.agents:
+        print("adding goal positions to a list")
         GoalAngles.append(agent.desired_angle)
+    print("returning the new goal list")
     return GoalAngles
 
-''' new version for bulk read/write'''
-def EconConsensus(LetterList, AnglesList):
-## LetterList = list of angles; CirList = circular list of agents; Current Angles list = bulk read list
-##calulate error list(of lists) for neighborhood of agent.next
-    #first assign each angle to the corresponding agent in order to utilize the circular list
-    for agent in AgentList:
-        agent.angle = AnglesList[AgentList.index(agent)]
+# ''' new version for bulk read/write'''
+# def EconConsensus(LetterList, AnglesList):
+# ## LetterList = list of angles; CirList = circular list of agents; Current Angles list = bulk read list
+# ##calulate error list(of lists) for neighborhood of agent.next
+#     #first assign each angle to the corresponding agent in order to utilize the circular list
+#     for agent in AgentList:
+#         agent.angle = AnglesList[AgentList.index(agent)]
 
-    #then find error for each neighborhood(neighborhhod of nextAgent) for each orientation
-    curr_node = CircularAgentList.head
-    while curr_node.next:
-        agent = curr_node.data
-        nextAgent = curr_node.next.data
-        nextnextAgent = curr_node.next.next.data
-        nextAgent.errorList = []
-        for i in range(len(LetterList)):
-            leftError = agent.angle - LetterList(i-1)
-            selfError = nextAgent.angle - LetterList(i)
-            rightError = nextnextAgent.angle - LetterList(i+1)
-            CurrentErrorList = [leftError, selfError, rightError]
-            nextAgent.errorList.append(CurrentErrorList)
+#     #then find error for each neighborhood(neighborhhod of nextAgent) for each orientation
+#     curr_node = CircularAgentList.head
+#     while curr_node.next:
+#         agent = curr_node.data
+#         nextAgent = curr_node.next.data
+#         nextnextAgent = curr_node.next.next.data
+#         nextAgent.errorList = []
+#         for i in range(len(LetterList)):
+#             leftError = agent.angle - LetterList(i-1)
+#             selfError = nextAgent.angle - LetterList(i)
+#             rightError = nextnextAgent.angle - LetterList(i+1)
+#             CurrentErrorList = [leftError, selfError, rightError]
+#             nextAgent.errorList.append(CurrentErrorList)
 
-        curr_node = curr_node.next
-        if curr_node == CircularAgentList.head:
-            break
+#         curr_node = curr_node.next
+#         if curr_node == CircularAgentList.head:
+#             break
 
-        #now assign movements based on these errors
-        curr_node = CircularAgentList.head
-        while curr_node.next:
-            agent = curr_node.data
-            nextAgent = curr_node.next.data
-            NeighborhoodIndex = AgentList.index(nextAgent)
-            nextnextAgent = curr_node.next.next.data
-            NeighborhoodBeliefsList = [min(agentErrorSums(agent)),min(agentErrorSums(nextAgent)),min(agentErrorSums(nextnextAgent))]
-            MiddleMoveStep = nextAgent.errorList[agentErrorSums(nextAgent).index(min(agentErrorSums(nextAgent)))][1]  # the error of middle agent w/ belief
-            if NeighborhoodBeliefsList.index(max(NeighborhoodBeliefsList)) == 1:
-                pass #no movement this timestep if middle agent has most error (let it be moved by other neighborhoods)
-            elif MiddleMoveStep == 0:
-                #move neighbor with least error with your belief to goal and other neighbor +/-
-                MiddleBelief = nextAgent.errorList[agentErrorSums(nextAgent).index(min(agentErrorSums(nextAgent)))]
-                if max(MiddleBelief) == 0:
-                    MoveStep = nextAgent.errorList[agentErrorSums(nextAgent).index(min(agentErrorSums(nextAgent)))][2]
-                    agent.desired_angle = agent.get_present_angle + MoveStep
-                    nextnextAgent.desired_angle = nextnextAgent.get_present_angle - MoveStep
-                elif max(MiddleBelief) == 2:
-                    MoveStep = nextAgent.errorList[agentErrorSums(nextAgent).index(min(agentErrorSums(nextAgent)))][0]
-                    agent.desired_angle = agent.get_present_angle - MoveStep
-                    nextnextAgent.desired_angle = nextnextAgent.get_present_angle + MoveStep
-            else:
-                #middle agent moves to belief angle, neighbor with belief with most error moves opposite                
-                nextAgent.desired_angle = nextAgent.get_present_angle - MiddleMoveStep
-                if NeighborhoodBeliefsList.index(max(NeighborhoodBeliefsList)) == 0:
-                    agent.desired_angle = agent.get_present_angle + MiddleMoveStep
-                elif NeighborhoodBeliefsList.index(max(NeighborhoodBeliefsList)) == 2:
-                    nextnextAgent.desired_angle = nextnextAgent.get_present_angle + MiddleMoveStep
-                curr_node = curr_node.next
-                return GoalAngles()
-                ##remove below 2 lines to run continuously, porbably should also add a delay
-            if curr_node == CircularAgentList.head:
-                    break
+#         #now assign movements based on these errors
+#         curr_node = CircularAgentList.head
+#         while curr_node.next:
+#             agent = curr_node.data
+#             nextAgent = curr_node.next.data
+#             NeighborhoodIndex = AgentList.index(nextAgent)
+#             nextnextAgent = curr_node.next.next.data
+#             NeighborhoodBeliefsList = [min(agentErrorSums(agent)),min(agentErrorSums(nextAgent)),min(agentErrorSums(nextnextAgent))]
+#             MiddleMoveStep = nextAgent.errorList[agentErrorSums(nextAgent).index(min(agentErrorSums(nextAgent)))][1]  # the error of middle agent w/ belief
+#             if NeighborhoodBeliefsList.index(max(NeighborhoodBeliefsList)) == 1:
+#                 pass #no movement this timestep if middle agent has most error (let it be moved by other neighborhoods)
+#             elif MiddleMoveStep == 0:
+#                 #move neighbor with least error with your belief to goal and other neighbor +/-
+#                 MiddleBelief = nextAgent.errorList[agentErrorSums(nextAgent).index(min(agentErrorSums(nextAgent)))]
+#                 if max(MiddleBelief) == 0:
+#                     MoveStep = nextAgent.errorList[agentErrorSums(nextAgent).index(min(agentErrorSums(nextAgent)))][2]
+#                     agent.desired_angle = agent.get_present_angle + MoveStep
+#                     nextnextAgent.desired_angle = nextnextAgent.get_present_angle - MoveStep
+#                 elif max(MiddleBelief) == 2:
+#                     MoveStep = nextAgent.errorList[agentErrorSums(nextAgent).index(min(agentErrorSums(nextAgent)))][0]
+#                     agent.desired_angle = agent.get_present_angle - MoveStep
+#                     nextnextAgent.desired_angle = nextnextAgent.get_present_angle + MoveStep
+#             else:
+#                 #middle agent moves to belief angle, neighbor with belief with most error moves opposite                
+#                 nextAgent.desired_angle = nextAgent.get_present_angle - MiddleMoveStep
+#                 if NeighborhoodBeliefsList.index(max(NeighborhoodBeliefsList)) == 0:
+#                     agent.desired_angle = agent.get_present_angle + MiddleMoveStep
+#                 elif NeighborhoodBeliefsList.index(max(NeighborhoodBeliefsList)) == 2:
+#                     nextnextAgent.desired_angle = nextnextAgent.get_present_angle + MiddleMoveStep
+#                 curr_node = curr_node.next
+#                 return GoalAngles()
+#                 ##remove below 2 lines to run continuously, porbably should also add a delay
+#             if curr_node == CircularAgentList.head:
+#                     break
 
 ##
 
@@ -293,17 +289,17 @@ for agent in loopy.agents:
 #######
 
 
-def update_labels():
+# def update_labels():
 
-    create_load_labels()
-    create_goal_angle_labels()
-    create_current_angle_labels()
+#     create_load_labels()
+#     create_goal_angle_labels()
+#     create_current_angle_labels()
 
-    while True:
-        update_load_labels()
-        update_goal_angle_labels()
-        update_current_angle_labels()
-        sleep(.2)
+#     while True:
+#         update_load_labels()
+#         update_goal_angle_labels()
+#         update_current_angle_labels()
+#         sleep(.2)
 
 
 '''
@@ -333,20 +329,23 @@ ControlBtn.grid(column = 12, row = 1, columnspan=4)
 ChooseShapeLabel = tk.Label(window, text = 'Choose Shape:', background= 'light blue')
 ChooseShapeLabel.grid(column=10, row=0, columnspan=4)
 
-LetterOptions = ['L', 'O']
+LetterOptions = dataSender.supported_shapes_with_letters
 LetterClicked = tk.StringVar()
-LetterClicked.set('L')
+LetterClicked.set(dataSender.supported_shapes_with_letters[0])
 LetterDrop = tk.OptionMenu(window, LetterClicked, *LetterOptions)
 LetterDrop.grid(column = 14, row = 0, columnspan=4)
 
 
-'''new Loopy move for bulk write:
+# new Loopy move for bulk write:
 
 def LoopyMove():
-    pass GoalAngles() (returns list) to bulk write function
-        
-so ave con should still work as is theoretically 
-'''
+    dataSender.torque_control(dataSender.TORQUE_ENABLE)
+    sleep(1)
+    dataSender.set_positions(GoalAngles()) 
+    sleep(1)
+    dataSender.torque_control(dataSender.TORQUE_DISABLE)
+
+
 
 ''' Old Loopy Move:
 def LoopyMove():
@@ -413,10 +412,10 @@ torque_on_btn.grid(column=10, row=5, columnspan=4)
 torque_off_btn = tk.Button(window,activebackground='navy blue', bg='#4863A0', fg='white', width=8, height=1, text='Torque Off', command=torque_off)
 torque_off_btn.grid(column = 14, row = 5, columnspan=4)
 
-update_labels_thread = Thread(target= update_labels)
-update_labels_thread.start()
+# update_labels_thread = Thread(target= update_labels)
+# update_labels_thread.start()
 
-window.protocol( "WM_DELETE_WINDOW", loopy.torque_off_all_agents() )
+# window.protocol( "WM_DELETE_WINDOW", loopy.torque_off_all_agents() )
 window.mainloop()
 
 

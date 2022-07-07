@@ -57,7 +57,7 @@ def torque_control(state):
             port_hand = port1; packet_hand = pack1
 
         comm_result, error_result = packet_hand.write1ByteTxRx(port_hand, n, ADDR_TORQUE_CONTROL, state)
-        # print( "Agent " + str(n) + " " + packet_hand.getTxRxResult(comm_result))
+        print( "Agent " + str(n) + " " + packet_hand.getTxRxResult(comm_result) + "Torque control: " + str(state))
 
         if error_result != 0:
             print( "Agent" + str(n) + " " + packet_hand.getRxPacketError(error_result))
@@ -121,20 +121,23 @@ def set_positions(proposed_shape):
     #     print(str(proposed_position_sum))
     #     print("The sum of the positions is too high!")
     #     return
+    proposed_shape_param = [] 
+    for pos in proposed_shape:
+        proposed_shape_param.append( [DXL_LOBYTE(DXL_LOWORD(pos)), DXL_HIBYTE(DXL_LOWORD(pos)), DXL_LOBYTE(DXL_HIWORD(pos)), DXL_HIBYTE(DXL_HIWORD(pos))] )
 
     for n in range(AGENTS):
         if n < 18:
             group0_write.removeParam(n)
-            group0_write.addParam(n, (proposed_shape[n]))
+            group0_write.addParam(n, (proposed_shape_param[n]))
         else:
             group1_write.removeParam(n)
-            group1_write.addParam(n, (proposed_shape[n]))
+            group1_write.addParam(n, (proposed_shape_param[n]))
 
     group0_write.txPacket()
     group1_write.txPacket()
 
 
-def create_shape_list(shape_name):
+def create_shape_list_param(shape_name):
     """
     Loads a shape from a csv file and returns a list of position parameters for that shape 
 
@@ -152,6 +155,28 @@ def create_shape_list(shape_name):
         position = int(current_line[1])
         param_position = [DXL_LOBYTE(DXL_LOWORD(position)), DXL_HIBYTE(DXL_LOWORD(position)), DXL_LOBYTE(DXL_HIWORD(position)), DXL_HIBYTE(DXL_HIWORD(position))]
         returned_shape.append( param_position )
+
+    loaded_shape.close()
+    # print("Loaded shape: Loopy_" + str(shape_name) + ".csv" )
+    return returned_shape
+
+def create_shape_list(shape_name):
+    """
+    Loads a shape from a csv file and returns a list of position parameters for that shape 
+
+    Parameters:
+        saved_shape - shape saved in a csv file that will be loaded
+    Returns:
+        None
+    """
+    returned_shape = [] 
+    # print("Loading shape: Loopy_" + str(shape_name) + ".csv" )
+    loaded_shape = open( "New_Loopy/Loopy_Shapes/Loopy_" + str(shape_name) + ".csv", "r")
+   
+    for id in range(AGENTS):
+        current_line = loaded_shape.readline().split(",")
+        position = int(current_line[1])
+        returned_shape.append(position)
 
     loaded_shape.close()
     # print("Loaded shape: Loopy_" + str(shape_name) + ".csv" )
@@ -199,7 +224,7 @@ def shape_selector():
 
         try:
             torque_control(TORQUE_ENABLE)
-            set_positions(create_shape_list(shape))
+            set_positions(create_shape_list_param(shape))
             sleep(1)
             torque_control(TORQUE_DISABLE)
             exit()
@@ -222,7 +247,7 @@ def shape_rotator(shape_list):
         torque_control(TORQUE_ENABLE)
 
         for shapes in shape_list:
-            set_positions(create_shape_list(shapes))
+            set_positions(create_shape_list_param(shapes))
             sleep(1)
 
         torque_control(TORQUE_DISABLE)

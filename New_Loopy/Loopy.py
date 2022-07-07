@@ -1,4 +1,3 @@
-from time import sleep
 from Agent import *
 
 class Loopy:
