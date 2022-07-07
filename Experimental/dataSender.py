@@ -274,9 +274,6 @@ def exit():
 
  
 
-
-
-
 # class InvalidPositionSumError(Exception):
 
 #     def __init__(self, proposed_sum ):
@@ -302,7 +299,7 @@ Future controls for loopy
 
 using average consensus for slower movements and 
 
-may need to include current and time 
+may need to include current and time in addition to position values 
 
 
 """
