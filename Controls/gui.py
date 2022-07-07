@@ -183,7 +183,7 @@ def agentErrorSums(agent):
 
 def GoalAngles():
     GoalAngles  = []
-    for agent in AgentList:
+    for agent in loopy.agents:
         GoalAngles.append(agent.desired_angle)
     return GoalAngles
 
@@ -192,8 +192,8 @@ def EconConsensus(LetterList, AnglesList):
 ## LetterList = list of angles; CirList = circular list of agents; Current Angles list = bulk read list
 ##calulate error list(of lists) for neighborhood of agent.next
     #first assign each angle to the corresponding agent in order to utilize the circular list
-    for agent in AgentList:
-        agent.angle = AnglesList[AgentList.index(agent)]
+    for agent in loopy.agents:
+        agent.angle = AnglesList[loopy.agents.index(agent)]
 
     #then find error for each neighborhood(neighborhhod of nextAgent) for each orientation
     curr_node = CircularAgentList.head
@@ -218,7 +218,7 @@ def EconConsensus(LetterList, AnglesList):
         while curr_node.next:
             agent = curr_node.data
             nextAgent = curr_node.next.data
-            NeighborhoodIndex = AgentList.index(nextAgent)
+            NeighborhoodIndex = loopy.agents.index(nextAgent)
             nextnextAgent = curr_node.next.next.data
             NeighborhoodBeliefsList = [min(agentErrorSums(agent)),min(agentErrorSums(nextAgent)),min(agentErrorSums(nextnextAgent))]
             MiddleMoveStep = nextAgent.errorList[agentErrorSums(nextAgent).index(min(agentErrorSums(nextAgent)))][1]  # the error of middle agent w/ belief
@@ -348,7 +348,7 @@ def LoopyMove():
 so ave con should still work as is theoretically 
 '''
 
-''' Old Loopy Move:
+###Old Loopy Move:
 def LoopyMove():
     curr_node = CircularAgentList.head
     while curr_node.next:
@@ -363,7 +363,8 @@ def LoopyMove():
         curr_node = curr_node.next
         if curr_node == CircularAgentList.head:
             break
-'''            
+#
+
 MoveBtn = tk.Button(window,activebackground='navy blue', bg='#4863A0', fg='white', width=6, height=1, text='Move',command=LoopyMove)
 MoveBtn.grid(row=2, column=12, columnspan=4)
 
