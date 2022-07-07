@@ -34,7 +34,7 @@ class Agent:
         self.torque_on_off = False
         self.process = Process()
         self.goal_shape = [] 
-        self.errors = []
+        self.errorList = []
 
 
     def __str__(self):
