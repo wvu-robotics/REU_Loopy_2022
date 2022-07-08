@@ -49,7 +49,14 @@ group1_write = GroupSyncWrite(port1, pack1, ADDR_GOAL_POSITION, LEN_GOAL_POSITIO
 
 
 def torque_control(state):
+    """
+    Turns the torque on or off for all agents depending on the value given
 
+    Parameters:
+        None
+    Returns:
+        None
+    """
     for n in range(AGENTS):
         if n < 18:
             port_hand = port0; packet_hand = pack0
@@ -121,6 +128,7 @@ def set_positions(proposed_shape):
     #     print(str(proposed_position_sum))
     #     print("The sum of the positions is too high!")
     #     return
+
     proposed_shape_param = [] 
     for pos in proposed_shape:
         proposed_shape_param.append( [DXL_LOBYTE(DXL_LOWORD(pos)), DXL_HIBYTE(DXL_LOWORD(pos)), DXL_LOBYTE(DXL_HIWORD(pos)), DXL_HIBYTE(DXL_HIWORD(pos))] )
