@@ -204,7 +204,7 @@ def save_current_shape(shape_name):
 
 
 supported_shapes = ["Circle", "Square", "Triangle"]
-supported_shapes_with_letters = ["A","Among_Us","Circle","E","I","K","N","Q","R","S","Square","T","Triangle","U","V","W","Y"]
+supported_shapes_with_letters = ["A","Among_Us","B","C","Circle","D","E","F","G","H","Heart","I","J","K","L","N","Q","R","S","Square","T","Triangle","U","V","W","Y"]
 wvu = ['W','V','U']
 nate = ['N','A','T','E']
 
@@ -293,7 +293,7 @@ def exit():
 
 
 
-mass_shape_saving()
+# mass_shape_saving()
 # shape_selector()
 # shape_rotator(supported_shapes)
 
