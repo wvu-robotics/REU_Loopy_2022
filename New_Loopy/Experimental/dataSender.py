@@ -21,14 +21,22 @@ LEN_TORQUE_ENABLE = 1 # bytes
 ADDR_PRESENT_LOAD = 126
 
 
-#Goal Position Values 
+#GOAL POSITION VALUES  
 ADDR_GOAL_POSITION = 116
 LEN_GOAL_POSITION = 4 # bytes
 
 
-#Present Position Values  
+#PRESENT POSITION VALUES  
 ADDR_PRESENT_POSITION = 132 
 LEN_PRESENT_POSITION = 4 # bytes
+
+
+#LED VALUES
+ADDR_LED_CONTROL = 65
+LEN_LED_CONTROL = 1 #byte
+LED_ON = 1
+LED_OFF = 0 
+
 
 
 DXL_MINIMUM_POSITION_VALUE  = 695       
@@ -96,7 +104,9 @@ def collect_positions():
             positions.append( group0_read.getData(n, ADDR_PRESENT_POSITION, LEN_PRESENT_POSITION) )
         else:
             positions.append( group1_read.getData(n, ADDR_PRESENT_POSITION, LEN_PRESENT_POSITION) )
-            
+        
+    group0_read.clearParam()
+    group1_read.clearParam()
     return positions  
 
 
@@ -143,6 +153,8 @@ def set_positions(proposed_shape):
 
     group0_write.txPacket()
     group1_write.txPacket()
+    group0_write.clearParam()
+    group1_write.clearParam()
 
 
 def create_shape_list_param(shape_name):
