@@ -1,3 +1,11 @@
+"""
+2022 WVU REU
+
+Human Interaction with Loopy
+
+Author: Nathan Adkins
+"""
+
 from Agent import *
 
 class Loopy:
