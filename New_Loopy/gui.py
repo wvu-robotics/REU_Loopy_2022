@@ -124,8 +124,12 @@ def AveCon():
         # agents error lists are error for each orientation (where their goal for orientation i is (i + id))
         for agent in loopy.agents:
             agent.ErrorList = []
-            for i in range(len(LetterList)):
-                error = abs(current_shape[agent.id] - LetterList[i+agent.id])
+            for i in range(len(LetterList)): # i is orientation, j is goal for that orientation
+                j = i+agent.id
+                if j > 35:
+                    error = abs(current_shape[agent.id] - LetterList[j-36])
+                else:
+                    error = abs(current_shape[agent.id] - LetterList[j])
                 agent.ErrorList.append(error)
     errorM()
 
@@ -138,7 +142,7 @@ def AveCon():
                 [agents[20].ErrorList],[agents[21].ErrorList],[agents[22].ErrorList],[agents[23].ErrorList],[agents[24].ErrorList],
                 [agents[25].ErrorList],[agents[26].ErrorList],[agents[27].ErrorList],[agents[28].ErrorList],[agents[29].ErrorList],
                 [agents[30].ErrorList],[agents[31].ErrorList],[agents[32].ErrorList],[agents[33].ErrorList],[agents[34].ErrorList],
-                [agents[35].ErrorList]])
+                [agents[35].ErrorList]], dtype=int)
 
 
     # average the agent's error list values
@@ -158,7 +162,7 @@ def AveCon():
                 currRow = A[i].tolist()
                 nextRow = A[i+1].tolist()
             #print(str(currRow))
-            temp = np.array([prevRow, currRow, nextRow])
+            temp = np.array([prevRow, currRow, nextRow], dtype=int)
             temp = temp.sum(axis=0)
             temp = temp/3
             A[i] = temp
@@ -168,12 +172,15 @@ def AveCon():
         average()
     print("consensus has been reached")
 
-#print chosen orientation for each agent
+#print/ assign chosen orientation for each agent
     for i in range(loopy.agent_count):
         row = A[i].tolist()
-        print(row)
-        print('agent ' + str(i) + 's goal is ' + str(row.index(min(row))))
-
+        Ochoice = row[0].index(np.amin(row))
+        print('agent ' + str(i) + 's goal is ' + str((Ochoice)))
+        goal = Ochoice + agents[i].id
+        if goal > 35:
+            goal = goal - 36
+        agents[i].desired_angle = LetterList[goal]
 
 
 '''non matrix ave con:
