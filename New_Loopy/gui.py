@@ -405,11 +405,15 @@ LetterDrop.grid(column = 14, row = 0, columnspan=4)
 # new Loopy move for bulk write:
 
 def LoopyMove():
-    dataSender.torque_control(dataSender.TORQUE_ENABLE)
-    sleep(1)
-    dataSender.set_positions(GoalAngles()) 
-    sleep(1)
-    dataSender.torque_control(dataSender.TORQUE_DISABLE)
+    # try:
+        dataSender.torque_control(dataSender.TORQUE_ENABLE)
+        sleep(1)
+        dataSender.set_positions(GoalAngles()) 
+        sleep(2)
+        dataSender.torque_control(dataSender.TORQUE_DISABLE)
+    # except Exception:
+    #     LoopyMove()
+
 
 
 
@@ -473,10 +477,10 @@ def torque_on():
     loopy.torque_on_all_agents()
     update_lights()
 
-torque_on_btn= tk.Button(window,activebackground='navy blue', bg='#4863A0', fg='white', width=8, height=1, text='Torque On', command=torque_on)
+torque_on_btn= tk.Button(window,activebackground='navy blue', bg='#4863A0', fg='white', width=8, height=1, text='Torque On')
 torque_on_btn.grid(column=10, row=5, columnspan=4)
 
-torque_off_btn = tk.Button(window,activebackground='navy blue', bg='#4863A0', fg='white', width=8, height=1, text='Torque Off', command=torque_off)
+torque_off_btn = tk.Button(window,activebackground='navy blue', bg='#4863A0', fg='white', width=8, height=1, text='Torque Off')
 torque_off_btn.grid(column = 14, row = 5, columnspan=4)
 
 # update_labels_thread = Thread(target= update_labels)

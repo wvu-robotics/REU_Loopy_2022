@@ -1,3 +1,11 @@
+"""
+2022 WVU REU
+
+Human Interaction with Loopy
+
+Author: Nathan Adkins
+"""
+
 from dynamixel_sdk import *
 from multiprocessing import *
 

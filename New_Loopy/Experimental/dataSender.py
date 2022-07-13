@@ -1,3 +1,11 @@
+"""
+2022 WVU REU
+
+Human Interaction with Loopy
+
+Author: Nathan Adkins
+"""
+
 from time import sleep
 from dynamixel_sdk import * 
 
@@ -13,7 +21,7 @@ BAUDRATE = 57600
 #TORQUE CONTROL VALUES
 TORQUE_ENABLE = 1
 TORQUE_DISABLE = 0
-ADDR_TORQUE_CONTROL = 64
+ADDR_TORQUE_CONTROL = 64 # (lowest address value)
 LEN_TORQUE_ENABLE = 1 # bytes
 
 
@@ -38,6 +46,11 @@ LED_ON = 1
 LED_OFF = 0 
 
 
+# PWM VALUES 
+ADDR_PRESENT_PWM = 124
+ADDR_GOAL_PWM = 100
+LEN_PWM = 4 # bytes 
+
 
 DXL_MINIMUM_POSITION_VALUE  = 695       
 DXL_MAXIMUM_POSITION_VALUE  = 3405 
@@ -54,6 +67,33 @@ group1_read = GroupSyncRead(port1, pack1, ADDR_PRESENT_POSITION, LEN_PRESENT_POS
 
 group0_write = GroupSyncWrite(port0, pack0, ADDR_GOAL_POSITION, LEN_GOAL_POSITION)
 group1_write = GroupSyncWrite(port1, pack1, ADDR_GOAL_POSITION, LEN_GOAL_POSITION)
+
+group0_write_torque = GroupSyncWrite(port0, pack0, ADDR_TORQUE_CONTROL, LEN_TORQUE_ENABLE)
+group1_write_torque = GroupSyncWrite(port1, pack1, ADDR_TORQUE_CONTROL, LEN_TORQUE_ENABLE)
+
+group0_read_pwm = GroupSyncRead(port0, pack0, ADDR_PRESENT_PWM, LEN_PWM)
+group1_read_pwm = GroupSyncRead(port1, pack1, ADDR_PRESENT_PWM, LEN_PWM)
+
+# def loopy_reboot():
+
+
+# def torque_control(state):
+#     for n in range(AGENTS):
+#         if n < 18:
+#             print("data " + str(len(str(state))))
+#             print("set length" + str(group0_write_torque.data_length))
+#             group0_write_torque.removeParam(n)
+#             group0_write_torque.addParam(n, state)
+#         else:
+#             print("data " + str(len(str(state))))
+#             print("set length" + str(group1_write_torque.data_length))
+#             group1_write_torque.removeParam(n)
+#             group1_write_torque.addParam(n, state)
+
+#     group0_write_torque.txPacket()
+#     group1_write_torque.txPacket()
+#     group0_write_torque.clearParam()
+#     group1_write_torque.clearParam()
 
 
 def torque_control(state):
@@ -72,7 +112,7 @@ def torque_control(state):
             port_hand = port1; packet_hand = pack1
 
         comm_result, error_result = packet_hand.write1ByteTxRx(port_hand, n, ADDR_TORQUE_CONTROL, state)
-        print( "Agent " + str(n) + " " + packet_hand.getTxRxResult(comm_result) + "Torque control: " + str(state))
+        print( "Agent " + str(n) + " " + packet_hand.getTxRxResult(comm_result) + " Torque control: " + str(state))
 
         if error_result != 0:
             print( "Agent" + str(n) + " " + packet_hand.getRxPacketError(error_result))
@@ -107,8 +147,32 @@ def collect_positions():
         
     group0_read.clearParam()
     group1_read.clearParam()
-    return positions  
+    return positions
 
+
+def collect_pwm():
+
+    for n in range(AGENTS):
+        if n < 18:
+            group0_read_pwm.removeParam(n)
+            group0_read_pwm.addParam(n)
+        else:
+            group1_read_pwm.removeParam(n)
+            group1_read_pwm.addParam(n)
+
+        group0_read_pwm.txRxPacket()
+        group1_read_pwm.txRxPacket()
+
+    pwms = []
+    for n in range(AGENTS):
+        if n < 18:
+            pwms.append( group0_read_pwm.getData(n, ADDR_PRESENT_PWM, LEN_PWM) )
+        else:
+            pwms.append( group1_read_pwm.getData(n, ADDR_PRESENT_PWM, LEN_PWM) )
+        
+    group0_read.clearParam()
+    group1_read.clearParam()
+    return pwms
 
 def set_positions(proposed_shape):
     """
@@ -224,7 +288,7 @@ def save_current_shape(shape_name):
 
 
 supported_shapes = ["Circle", "Square", "Triangle"]
-supported_shapes_with_letters = ["A","Among_Us","B","C","Circle","D","E","F","G","H","Heart","I","J","K","L","N","Q","R","S","Square","T","Triangle","U","V","W","Y"]
+supported_shapes_with_letters = ["A","B","C","D","E","F","H","I","J","K","L","N","Q","R","S","T","U","V","W","Y","Among_Us","Circle","Heart","Square","Triangle"]
 wvu = ['W','V','U']
 nate = ['N','A','T','E']
 
@@ -312,7 +376,7 @@ def exit():
         exit()
 
 
-
+print(collect_pwm())
 # mass_shape_saving()
 # shape_selector()
 # shape_rotator(supported_shapes)
