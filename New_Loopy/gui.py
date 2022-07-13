@@ -112,57 +112,33 @@ def AveCon():
 
     chosen_shape = LetterClicked.get()
 
-    LetterList = dataSender.create_shape_list(chosen_shape)
+    #LetterList = dataSender.create_shape_list(chosen_shape)
+    LetterList = [2064,2030,2091,2851,2139,2839,2118,2080,2053,1186,1974,2080,943,1903,1967,2055,2047,2003,2063,1969,2070,1967,995,1941,2036,2041,2029,2042,2074,2080,1959,1958,878,2040,2063,1170]
 
-    #make an initial error list for each of 36 goals for each of 36 agents
-    def error():
+
+
+    ###below is for matrix:
+
+    # make an initial error list for each of 36 goals for each of 36 agents
+    def errorM():
+        # agents error lists are error for each orientation (where their goal for orientation i is (i + id))
         for agent in loopy.agents:
             agent.ErrorList = []
-            for j in LetterList:
-                    error = abs(current_shape[agent.id] - j)
-                    agent.ErrorList.append(error)
-    error()
+            for i in range(len(LetterList)):
+                error = abs(current_shape[agent.id] - LetterList[i+agent.id])
+                agent.ErrorList.append(error)
+    errorM()
 
-
-    ##make matrix of each agent' error list (each error list is a row):
+    ##make matrix of each agent' error list (each error list is a row): (36 agents x 36 orientations)
     agents = loopy.agents
-    A = np.array([ [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,agents[0].ErrorList[-1],agents[0].ErrorList],
-                [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,agents[1].ErrorList[-1],agents[1].ErrorList,agents[1].ErrorList[0]],
-                [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,agents[2].ErrorList[-1],agents[2].ErrorList,agents[2].ErrorList[0],0],
-                [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,agents[3].ErrorList[-1],agents[3].ErrorList,agents[3].ErrorList[0],0,0],
-                [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,agents[4].ErrorList[-1],agents[4].ErrorList,agents[4].ErrorList[0],0,0,0],
-                [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,agents[5].ErrorList[-1],agents[5].ErrorList,agents[5].ErrorList[0],0,0,0,0],
-                [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,agents[6].ErrorList[-1],agents[6].ErrorList,agents[6].ErrorList[0],0,0,0,0,0],
-                [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,agents[7].ErrorList[-1],agents[7].ErrorList,agents[7].ErrorList[0],0,0,0,0,0,0],
-                [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,agents[8].ErrorList[-1],agents[8].ErrorList,agents[8].ErrorList[0],0,0,0,0,0,0,0],
-                [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,agents[9].ErrorList[-1],agents[9].ErrorList,agents[9].ErrorList[0],0,0,0,0,0,0,0,0],
-                [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,agents[10].ErrorList[-1],agents[10].ErrorList,agents[10].ErrorList[0],0,0,0,0,0,0,0,0,0],
-                [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,agents[11].ErrorList[-1],agents[11].ErrorList,agents[11].ErrorList[0],0,0,0,0,0,0,0,0,0,0],
-                [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,agents[12].ErrorList[-1],agents[12].ErrorList,agents[12].ErrorList[0],0,0,0,0,0,0,0,0,0,0,0],
-                [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,agents[13].ErrorList[-1],agents[13].ErrorList,agents[13].ErrorList[0],0,0,0,0,0,0,0,0,0,0,0,0],
-                [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,agents[14].ErrorList[-1],agents[14].ErrorList,agents[14].ErrorList[0],0,0,0,0,0,0,0,0,0,0,0,0,0],
-                [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,agents[15].ErrorList[-1],agents[15].ErrorList,agents[15].ErrorList[0],0,0,0,0,0,0,0,0,0,0,0,0,0,0],
-                [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,agents[16].ErrorList[-1],agents[16].ErrorList,agents[16].ErrorList[0],0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
-                [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,agents[17].ErrorList[-1],agents[17].ErrorList,agents[17].ErrorList[0],0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
-                [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,agents[18].ErrorList[-1],agents[18].ErrorList,agents[18].ErrorList[0],0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
-                [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,agents[19].ErrorList[-1],agents[19].ErrorList,agents[19].ErrorList[0],0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
-                [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,agents[20].ErrorList[-1],agents[20].ErrorList,agents[20].ErrorList[0],0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
-                [0,0,0,0,0,0,0,0,0,0,0,0,0,0,agents[21].ErrorList[-1],agents[21].ErrorList,agents[21].ErrorList[0],0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
-                [0,0,0,0,0,0,0,0,0,0,0,0,0,agents[22].ErrorList[-1],agents[22].ErrorList,agents[22].ErrorList[0],0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
-                [0,0,0,0,0,0,0,0,0,0,0,0,agents[23].ErrorList[-1],agents[23].ErrorList,agents[23].ErrorList[0],0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
-                [0,0,0,0,0,0,0,0,0,0,0,agents[24].ErrorList[-1],agents[24].ErrorList,agents[24].ErrorList[0],0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
-                [0,0,0,0,0,0,0,0,0,0,agents[25].ErrorList[-1],agents[25].ErrorList,agents[25].ErrorList[0],0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
-                [0,0,0,0,0,0,0,0,0,agents[26].ErrorList[-1],agents[26].ErrorList,agents[26].ErrorList[0],0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
-                [0,0,0,0,0,0,0,0,agents[27].ErrorList[-1],agents[27].ErrorList,agents[27].ErrorList[0],0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
-                [0,0,0,0,0,0,0,agents[28].ErrorList[-1],agents[28].ErrorList,agents[28].ErrorList[0],0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
-                [0,0,0,0,0,0,agents[29].ErrorList[-1],agents[29].ErrorList,agents[29].ErrorList[0],0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
-                [0,0,0,0,0,agents[30].ErrorList[-1],agents[30].ErrorList,agents[30].ErrorList[0],0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
-                [0,0,0,0,agents[31].ErrorList[-1],agents[31].ErrorList,agents[31].ErrorList[0],0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
-                [0,0,0,agents[32].ErrorList[-1],agents[32].ErrorList,agents[32].ErrorList[0],0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
-                [0,0,agents[33].ErrorList[-1],agents[33].ErrorList,agents[33].ErrorList[0],0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
-                [0,agents[34].ErrorList[-1],agents[34].ErrorList,agents[34].ErrorList[0],0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
-                [agents[35].ErrorList[-1],agents[35].ErrorList,agents[35].ErrorList[0],0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0] ])
-
+    A = np.array([[agents[0].ErrorList],[agents[1].ErrorList],[agents[2].ErrorList],[agents[3].ErrorList],[agents[4].ErrorList],
+                [agents[5].ErrorList],[agents[6].ErrorList],[agents[7].ErrorList],[agents[8].ErrorList],[agents[9].ErrorList],
+                [agents[10].ErrorList],[agents[11].ErrorList],[agents[12].ErrorList],[agents[13].ErrorList],[agents[14].ErrorList],
+                [agents[15].ErrorList],[agents[16].ErrorList],[agents[17].ErrorList],[agents[18].ErrorList],[agents[19].ErrorList],
+                [agents[20].ErrorList],[agents[21].ErrorList],[agents[22].ErrorList],[agents[23].ErrorList],[agents[24].ErrorList],
+                [agents[25].ErrorList],[agents[26].ErrorList],[agents[27].ErrorList],[agents[28].ErrorList],[agents[29].ErrorList],
+                [agents[30].ErrorList],[agents[31].ErrorList],[agents[32].ErrorList],[agents[33].ErrorList],[agents[34].ErrorList],
+                [agents[35].ErrorList]])
 
 
     # average the agent's error list values
@@ -170,18 +146,19 @@ def AveCon():
     def average():
         for i in range(len(A)):
             if i == 0:
-                prevRow = A[-1, :].tolist()
-                currRow = A[i, :].tolist()
-                nextRow = A[i + 1, :].tolist()
+                prevRow = A[-1 ].tolist()
+                currRow = A[i ].tolist()
+                nextRow = A[i + 1 ].tolist()
             elif i == 35:
-                prevRow = A[i - 1, :].tolist()
-                currRow = A[i, :].tolist()
-                nextRow = A[0, :].tolist()
+                prevRow = A[i - 1 ].tolist()
+                currRow = A[i ].tolist()
+                nextRow = A[0 ].tolist()
             else:
-                prevRow  = A[i-1,:].tolist()
-                currRow = A[i,:].tolist()
-                nextRow = A[i+1,:].tolist()
-            temp = np.array([[prevRow], [currRow], [nextRow]])
+                prevRow  = A[i-1].tolist()
+                currRow = A[i].tolist()
+                nextRow = A[i+1].tolist()
+            #print(str(currRow))
+            temp = np.array([prevRow, currRow, nextRow])
             temp = temp.sum(axis=0)
             temp = temp/3
             A[i] = temp
@@ -192,16 +169,24 @@ def AveCon():
     print("consensus has been reached")
 
 #print chosen orientation for each agent
-    for i in range(len(A)):
-        row = A[i,:].tolist()
-        row = row[(36-i):(72-i)]
+    for i in range(loopy.agent_count):
+        row = A[i].tolist()
+        print(row)
         print('agent ' + str(i) + 's goal is ' + str(row.index(min(row))))
 
 
 
+'''non matrix ave con:
 
+    #make an initial error list for each of 36 goals for each of 36 agents
+    def error():
+        for agent in loopy.agents:
+            agent.ErrorList = []
+            for j in LetterList:
+                    error = abs(current_shape[agent.id] - j)
+                    agent.ErrorList.append(error)
+    error()
 
-'''
     #average the agent's error list values
     def LocalAveError(CirList):
         curr_node = CirList.head
