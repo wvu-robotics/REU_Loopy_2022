@@ -377,7 +377,7 @@ def exit():
 
 
 # print(collect_pwm())
-mass_shape_saving()
+# mass_shape_saving()
 # shape_selector()
 # shape_rotator(supported_shapes)
 
