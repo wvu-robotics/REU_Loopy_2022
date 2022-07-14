@@ -1,6 +1,5 @@
 from time import sleep
 import tkinter as tk
-from threading import Thread
 import Loopy
 import Experimental.dataSender as dataSender
 import numpy as np
@@ -112,8 +111,8 @@ def AveCon():
 
     chosen_shape = LetterClicked.get()
 
-    #LetterList = dataSender.create_shape_list(chosen_shape)
-    LetterList = [2064,2030,2091,2851,2139,2839,2118,2080,2053,1186,1974,2080,943,1903,1967,2055,2047,2003,2063,1969,2070,1967,995,1941,2036,2041,2029,2042,2074,2080,1959,1958,878,2040,2063,1170]
+    LetterList = dataSender.create_shape_list(chosen_shape)
+    # LetterList = [2064,2030,2091,2851,2139,2839,2118,2080,2053,1186,1974,2080,943,1903,1967,2055,2047,2003,2063,1969,2070,1967,995,1941,2036,2041,2029,2042,2074,2080,1959,1958,878,2040,2063,1170]
 
 
 
@@ -143,8 +142,6 @@ def AveCon():
                 [agents[25].ErrorList],[agents[26].ErrorList],[agents[27].ErrorList],[agents[28].ErrorList],[agents[29].ErrorList],
                 [agents[30].ErrorList],[agents[31].ErrorList],[agents[32].ErrorList],[agents[33].ErrorList],[agents[34].ErrorList],
                 [agents[35].ErrorList]], dtype=int)
-
-
     # average the agent's error list values
     #for each agent (each row), average with rows above/below (shifted by +/- 1) !!!!PROBLEM!!!
     def average():
