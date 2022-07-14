@@ -288,7 +288,7 @@ def save_current_shape(shape_name):
 
 
 supported_shapes = ["Circle", "Square", "Triangle"]
-supported_shapes_with_letters = ["A","B","C","D","E","F","H","I","J","K","L","N","Q","R","S","T","U","V","W","Y","Among_Us","Circle","Heart","Square","Triangle"]
+supported_shapes_with_letters = ["A","B","C","D","E","F","G","H","I","J","K","L","M","N","O","P","Q","R","S","T","U","V","W","X","Y","Z","Among_Us","Circle","Heart","Square","Triangle"]
 wvu = ['W','V','U']
 nate = ['N','A','T','E']
 
