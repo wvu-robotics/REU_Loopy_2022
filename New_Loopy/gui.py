@@ -173,12 +173,12 @@ def AveCon():
     for i in range(loopy.agent_count):
         row = A[i].tolist()
         Ochoice = row[0].index(np.amin(row))
-        print('agent ' + str(i) + 's goal is ' + str((Ochoice)))
+        print( loopy.agents[i].name + " goal is " + str((Ochoice)) + " with position value: ")
         goal = Ochoice + agents[i].id
         if goal > 35:
             goal = goal - 36
         agents[i].desired_angle = LetterList[goal]
-
+        print( str(loopy.agents[i].desired_angle) + "\n")
 
 '''non matrix ave con:
 
