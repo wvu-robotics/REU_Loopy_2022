@@ -1,7 +1,7 @@
-from time import sleep
+from time import sleep, time
 import tkinter as tk
 import Loopy
-import Experimental.dataSender as dataSender
+import Experimental.data_handler as dataSender
 import numpy as np
 
 
@@ -106,6 +106,7 @@ CurrentAngleLabel.grid(columnspan=3, row= ROW_CIRCLE + 6)
 ######Ave Consensus
        
 def AveCon():
+    start_time = time()
 
     current_shape = dataSender.collect_positions()
 
@@ -179,6 +180,9 @@ def AveCon():
             goal = goal - 36
         agents[i].desired_angle = LetterList[goal]
         print( str(loopy.agents[i].desired_angle) + "\n")
+    end_time = time()
+    print("Algorithm time: " + str(end_time - start_time))
+    LoopyMove()
 
 '''non matrix ave con:
 
