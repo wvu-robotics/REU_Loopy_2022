@@ -12,7 +12,19 @@ UPDATE_LABELS_TIME = 100 # ms
 
 ROW_CIRCLE = 26
 
+P_Gain = 20
+I_Gain = 0
+D_Gain = 0
+
 loopy = Loopy.Loopy(NUMBER_OF_AGENTS)
+
+#change pid gains
+def change_PID_gains():
+    loopy.set_loopy_p_gain(P_Gain)
+    loopy.set_loopy_i_gain(I_Gain)
+    loopy.set_loopy_d_gain(D_Gain)
+
+change_PID_gains()
 
 
 window = tk.Tk()
