@@ -6,6 +6,7 @@ Human Interaction with Loopy
 Author: Nathan Adkins
 """
 
+from asyncore import write
 from time import sleep
 from dynamixel_sdk import * 
 
@@ -41,7 +42,7 @@ LEN_PRESENT_POSITION = 4 # bytes
 
 #LED VALUES
 ADDR_LED_CONTROL = 65
-LEN_LED_CONTROL = 1 #byte
+LEN_LED_CONTROL = 1 # bytes
 LED_ON = 1
 LED_OFF = 0 
 
@@ -52,29 +53,33 @@ ADDR_GOAL_PWM = 100
 LEN_PWM = 4 # bytes 
 
 
+#PID VALUES
+ADDR_POSITION_D_GAIN = 80
+ADDR_POSITION_I_GAIN = 82
+ADDR_POSITION_P_GAIN = 84
+LEN_POSITION_PID_GAIN = 4 # bytes
+
 DXL_MINIMUM_POSITION_VALUE  = 695       
 DXL_MAXIMUM_POSITION_VALUE  = 3405 
 
 
-port0 = PortHandler(DEVICE0); port0.openPort(); port0.setBaudRate(BAUDRATE)
-port1 = PortHandler(DEVICE1); port1.openPort(); port1.setBaudRate(BAUDRATE)
+# port0 = PortHandler(DEVICE0); port0.openPort(); port0.setBaudRate(BAUDRATE)
+# port1 = PortHandler(DEVICE1); port1.openPort(); port1.setBaudRate(BAUDRATE)
 
-pack0 = Protocol2PacketHandler()
-pack1 = Protocol2PacketHandler()
+# pack0 = Protocol2PacketHandler()
+# pack1 = Protocol2PacketHandler()
 
-group0_read = GroupSyncRead(port0, pack0, ADDR_PRESENT_POSITION, LEN_PRESENT_POSITION)
-group1_read = GroupSyncRead(port1, pack1, ADDR_PRESENT_POSITION, LEN_PRESENT_POSITION)
+# group0_read = GroupSyncRead(port0, pack0, ADDR_PRESENT_POSITION, LEN_PRESENT_POSITION)
+# group1_read = GroupSyncRead(port1, pack1, ADDR_PRESENT_POSITION, LEN_PRESENT_POSITION)
 
-group0_write = GroupSyncWrite(port0, pack0, ADDR_GOAL_POSITION, LEN_GOAL_POSITION)
-group1_write = GroupSyncWrite(port1, pack1, ADDR_GOAL_POSITION, LEN_GOAL_POSITION)
+# group0_write = GroupSyncWrite(port0, pack0, ADDR_GOAL_POSITION, LEN_GOAL_POSITION)
+# group1_write = GroupSyncWrite(port1, pack1, ADDR_GOAL_POSITION, LEN_GOAL_POSITION)
 
-group0_write_torque = GroupSyncWrite(port0, pack0, ADDR_TORQUE_CONTROL, LEN_TORQUE_ENABLE)
-group1_write_torque = GroupSyncWrite(port1, pack1, ADDR_TORQUE_CONTROL, LEN_TORQUE_ENABLE)
+# group0_write_torque = GroupSyncWrite(port0, pack0, ADDR_TORQUE_CONTROL, LEN_TORQUE_ENABLE)
+# group1_write_torque = GroupSyncWrite(port1, pack1, ADDR_TORQUE_CONTROL, LEN_TORQUE_ENABLE)
 
-group0_read_pwm = GroupSyncRead(port0, pack0, ADDR_PRESENT_PWM, LEN_PWM)
-group1_read_pwm = GroupSyncRead(port1, pack1, ADDR_PRESENT_PWM, LEN_PWM)
-
-# def loopy_reboot():
+# group0_read_pwm = GroupSyncRead(port0, pack0, ADDR_PRESENT_PWM, LEN_PWM)
+# group1_read_pwm = GroupSyncRead(port1, pack1, ADDR_PRESENT_PWM, LEN_PWM)
 
 
 # def torque_control(state):
@@ -97,14 +102,13 @@ group1_read_pwm = GroupSyncRead(port1, pack1, ADDR_PRESENT_PWM, LEN_PWM)
 
 
 def torque_control(state):
-    """
-    Turns the torque on or off for all agents depending on the value given
 
-    Parameters:
-        None
-    Returns:
-        None
-    """
+    # port0 = PortHandler(DEVICE0); port0.openPort(); port0.setBaudRate(BAUDRATE)
+    # port1 = PortHandler(DEVICE1); port1.openPort(); port1.setBaudRate(BAUDRATE)
+
+    # pack0 = Protocol2PacketHandler()
+    # pack1 = Protocol2PacketHandler()
+
     for n in range(AGENTS):
         if n < 18:
             port_hand = port0; packet_hand = pack0
@@ -119,14 +123,25 @@ def torque_control(state):
 
 
 def collect_positions():
-    """
-    Collects the current positions of the dynamixels and returns them in a list 
 
-    Parameters:
-        None
-    Returns:
-        None
-    """
+    port0 = PortHandler(DEVICE0); port0.openPort(); port0.setBaudRate(BAUDRATE)
+    port1 = PortHandler(DEVICE1); port1.openPort(); port1.setBaudRate(BAUDRATE)
+
+    pack0 = Protocol2PacketHandler()
+    pack1 = Protocol2PacketHandler()
+
+    group0_read = GroupSyncRead(port0, pack0, ADDR_PRESENT_POSITION, LEN_PRESENT_POSITION)
+    group1_read = GroupSyncRead(port1, pack1, ADDR_PRESENT_POSITION, LEN_PRESENT_POSITION)
+
+    group0_write = GroupSyncWrite(port0, pack0, ADDR_GOAL_POSITION, LEN_GOAL_POSITION)
+    group1_write = GroupSyncWrite(port1, pack1, ADDR_GOAL_POSITION, LEN_GOAL_POSITION)
+
+    group0_write_torque = GroupSyncWrite(port0, pack0, ADDR_TORQUE_CONTROL, LEN_TORQUE_ENABLE)
+    group1_write_torque = GroupSyncWrite(port1, pack1, ADDR_TORQUE_CONTROL, LEN_TORQUE_ENABLE)
+
+    group0_read_pwm = GroupSyncRead(port0, pack0, ADDR_PRESENT_PWM, LEN_PWM)
+    group1_read_pwm = GroupSyncRead(port1, pack1, ADDR_PRESENT_PWM, LEN_PWM)
+
     for n in range(AGENTS):
         if n < 18:
             group0_read.removeParam(n)
@@ -173,6 +188,7 @@ def collect_pwm():
     group0_read.clearParam()
     group1_read.clearParam()
     return pwms
+
 
 def set_positions(proposed_shape):
     """
@@ -244,6 +260,7 @@ def create_shape_list_param(shape_name):
     # print("Loaded shape: Loopy_" + str(shape_name) + ".csv" )
     return returned_shape
 
+
 def create_shape_list(shape_name):
     """
     Loads a shape from a csv file and returns a list of position parameters for that shape 
@@ -279,6 +296,7 @@ def save_current_shape(shape_name):
     print("Creating shape: Loopy_" + str(shape_name) + ".csv" )
     new_file = open( "Loopy_Shapes/Loopy_" + str(shape_name) + ".csv", "w")
     shape = collect_positions()
+    # read_from_address(ADDR_PRESENT_POSITION, LEN_PRESENT_POSITION)
 
     for n in range(AGENTS):
         new_file.write( "agent" + str(n) + "," + str(shape[n]) + "\n")
@@ -374,6 +392,104 @@ def exit():
     else:
         print("Please select a valid response")
         exit()
+
+
+def write_to_address(address, length, value):
+
+    port0 = PortHandler(DEVICE0); port0.openPort(); port0.setBaudRate(BAUDRATE)
+    pack0 = Protocol2PacketHandler()
+    group0_write = GroupSyncWrite(port0, pack0, address, length)
+
+    port1 = PortHandler(DEVICE1); port1.openPort(); port1.setBaudRate(BAUDRATE)
+    pack1 = Protocol2PacketHandler()
+    group1_write = GroupSyncWrite(port1, pack1, address, length)
+
+
+    new_value = [DXL_LOBYTE(DXL_LOWORD(value)), DXL_HIBYTE(DXL_LOWORD(value)), DXL_LOBYTE(DXL_HIWORD(value)), DXL_HIBYTE(DXL_HIWORD(value))]
+
+    for n in range(AGENTS):
+        if n < 18:
+            group0_write.removeParam(n)
+            group0_write.addParam(n, new_value)
+        else:
+            group1_write.removeParam(n)
+            group1_write.addParam(n, new_value)
+
+    group0_write.txPacket()
+    group1_write.txPacket()    
+
+    port0.closePort()
+    port1.closePort()
+
+
+# def read_from_address(address, length):
+
+#     port0 = PortHandler(DEVICE0); port0.openPort(); port0.setBaudRate(BAUDRATE)
+#     pack0 = Protocol2PacketHandler()
+#     group0_read = GroupSyncRead(port0, pack0, address, length)
+
+#     port1 = PortHandler(DEVICE1); port1.openPort(); port1.setBaudRate(BAUDRATE)
+#     pack1 = Protocol2PacketHandler()
+#     group1_read = GroupSyncRead(port1, pack1, address, length)
+
+#     for n in range(AGENTS): # These conditionals and the number of GroupSyncRead objects will change for the number of agents in Loopy
+#         if n < 18:
+#             group0_read.removeParam(n)
+#             group0_read.addParam(n)
+#         else:
+#             group1_read.removeParam(n)
+#             group1_read.addParam(n)
+
+#     group0_read.txRxPacket()
+#     group1_read.txRxPacket()
+
+#     address_data = []
+#     for n in range(AGENTS):
+#         if n < 18:
+#             address_data.append( group0_read.getData(n, address, length) )
+#         else:
+#             address_data.append( group1_read.getData(n, address, length) )
+        
+#     group0_read.clearParam()
+#     group1_read.clearParam()
+
+#     port0.closePort()
+#     port1.closePort()
+#     return address_data
+
+# pack0.write4ByteTxRx(port0, 0, 84, 1000)
+
+# print( str(read_from_address(ADDR_PRESENT_POSITION, LEN_PRESENT_POSITION)))
+# write_to_address(ADDR_POSITION_P_GAIN, LEN_POSITION_PID_GAIN, 10)
+# write_to_address(ADDR_POSITION_I_GAIN, LEN_POSITION_PID_GAIN, 200)
+# write_to_address(ADDR_POSITION_D_GAIN, LEN_POSITION_PID_GAIN, 0)
+
+# write_to_address(100, 200)
+# torque_control(TORQUE_DISABLE)
+
+# set_pid_values(1000,0,0)
+
+
+
+# def change_pid_values():
+
+    
+    
+#         pro
+
+#     for n in range(AGENTS):
+#         if n < 18:
+#             group0_write.removeParam(n)
+#             group0_write.addParam(n, (proposed_shape_param[n]))
+#         else:
+#             group1_write.removeParam(n)
+#             group1_write.addParam(n, (proposed_shape_param[n]))
+
+#     group0_write.txPacket()
+#     group1_write.txPacket()
+#     group0_write.clearParam()
+#     group1_write.clearParam()
+
 
 
 # print(collect_pwm())
