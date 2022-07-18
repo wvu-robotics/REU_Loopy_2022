@@ -39,7 +39,7 @@ def update_lights():
 
         light_canvas.grid(column=i, row=ROW_CIRCLE)
 
-update_lights()
+# update_lights()
 
 ##Create light number labels
 for i in range(36):
@@ -108,6 +108,7 @@ CurrentAngleLabel.grid(columnspan=3, row= ROW_CIRCLE + 6)
 def AveCon():
     start_time = time()
 
+    # current_shape = dataSender.read_from_address(dataSender.ADDR_PRESENT_POSITION, dataSender.LEN_PRESENT_POSITION)
     current_shape = dataSender.collect_positions()
 
     chosen_shape = LetterClicked.get()
@@ -410,8 +411,8 @@ def LoopyMove():
         dataSender.torque_control(dataSender.TORQUE_ENABLE)
         sleep(1)
         dataSender.set_positions(GoalAngles()) 
-        sleep(2)
-        dataSender.torque_control(dataSender.TORQUE_DISABLE)
+        # sleep(1)
+        # dataSender.torque_control(dataSender.TORQUE_DISABLE)
     # except Exception:
     #     LoopyMove()
 

@@ -49,6 +49,7 @@ class Loopy:
         for id in range(self.agent_count):
             self.agents[id].torque_control("off")
 
+
     def torque_on_all_agents(self):
         """
         Turns the torque on for all of the Agents in a Loopy   
@@ -79,6 +80,7 @@ class Loopy:
 
         new_file.close()
         print("Created shape: Loopy_" + str(shape_name) + ".csv" )
+
 
     def recreate_saved_shape(self, saved_shape):
         """
