@@ -18,14 +18,6 @@ D_Gain = 0
 
 loopy = Loopy.Loopy(NUMBER_OF_AGENTS)
 
-#change pid gains
-def change_PID_gains():
-    loopy.set_loopy_p_gain(P_Gain)
-    loopy.set_loopy_i_gain(I_Gain)
-    loopy.set_loopy_d_gain(D_Gain)
-
-change_PID_gains()
-
 
 window = tk.Tk()
 ###window.title doesnt work, needs to be configure or something
@@ -33,30 +25,6 @@ window.title = "Loopy GUI"
 window.geometry = "1080x350"
 window.configure(bg="light blue")
 
-'''
-Below: rows of lights, agent numbers, agent load, current angle, & goal angle are made & shown
-'''
-
-# Display Agent Status 'Lights'
-def update_lights():
-    for i in range(36):
-        light_canvas = tk.Canvas(window, width=30, height=30, background='light blue', highlightthickness=0)
-        my_oval = light_canvas.create_oval(13, 13, 26, 26)  # Create a circle on the Canvas
-        
-        if loopy.agents[i].torque_on_off == True:
-            light_canvas.itemconfig(my_oval, fill='light green')
-
-        elif loopy.agents[i].torque_on_off == False:
-            light_canvas.itemconfig(my_oval, fill='light grey')
-
-        light_canvas.grid(column=i, row=ROW_CIRCLE)
-
-# update_lights()
-
-##Create light number labels
-for i in range(36):
-    my_NumberLabel = tk.Label(window, text=str(i), background='light blue')
-    my_NumberLabel.grid(column=i, row= ROW_CIRCLE + 1 )
 
 ## agent load labels
 load_labels = []
@@ -126,7 +94,7 @@ def AveCon():
     chosen_shape = LetterClicked.get()
 
     LetterList = dataSender.create_shape_list(chosen_shape)
-    # LetterList = [2064,2030,2091,2851,2139,2839,2118,2080,2053,1186,1974,2080,943,1903,1967,2055,2047,2003,2063,1969,2070,1967,995,1941,2036,2041,2029,2042,2074,2080,1959,1958,878,2040,2063,1170]
+    # # LetterList = [2064,2030,2091,2851,2139,2839,2118,2080,2053,1186,1974,2080,943,1903,1967,2055,2047,2003,2063,1969,2070,1967,995,1941,2036,2041,2029,2042,2074,2080,1959,1958,878,2040,2063,1170]
 
 
     #make an initial error list for each of 36 goals for each of 36 agents
@@ -138,69 +106,48 @@ def AveCon():
                     agent.ErrorList.append(error)
     error()
 
-    #average the agent's error list values
-    def LocalAveError(CirList):
-        curr_node = CirList.head
-        while curr_node.next:
-            print("Calculating average local error for: " + curr_node.next.data.name)
-            for j in curr_node.next.data.ErrorList:
-                my_error_index = curr_node.next.data.ErrorList.index(j)
-                if my_error_index == 0:
-                    average = (curr_node.data.ErrorList[35] + curr_node.next.data.ErrorList[my_error_index] +
-                               curr_node.next.next.data.ErrorList[my_error_index + 1]) / 3
-                elif my_error_index == 35:
-                    average = (curr_node.data.ErrorList[my_error_index - 1] + curr_node.next.data.ErrorList[my_error_index] +
-                               curr_node.next.next.data.ErrorList[0]) / 3
-                elif my_error_index >0 and my_error_index <35:
-                    average = (curr_node.data.ErrorList[my_error_index-1] + curr_node.next.data.ErrorList[my_error_index] + curr_node.next.next.data.ErrorList[my_error_index+1]) / 3
-                curr_node.next.data.ErrorList[my_error_index] = average
-            curr_node = curr_node.next
-            if curr_node == CirList.head:
-                break
+    # #average the agent's error list values
+    # def LocalAveError(CirList):
+    #     curr_node = CirList.head
+    #     while curr_node.next:
+    #         print("Calculating average local error for: " + curr_node.next.data.name)
+    #         for j in curr_node.next.data.ErrorList:
+    #             my_error_index = curr_node.next.data.ErrorList.index(j)
+    #             if my_error_index == 0:
+    #                 average = (curr_node.data.ErrorList[35] + curr_node.next.data.ErrorList[my_error_index] +
+    #                            curr_node.next.next.data.ErrorList[my_error_index + 1]) / 3
+    #             elif my_error_index == 35:
+    #                 average = (curr_node.data.ErrorList[my_error_index - 1] + curr_node.next.data.ErrorList[my_error_index] +
+    #                            curr_node.next.next.data.ErrorList[0]) / 3
+    #             elif my_error_index >0 and my_error_index <35:
+    #                 average = (curr_node.data.ErrorList[my_error_index-1] + curr_node.next.data.ErrorList[my_error_index] + curr_node.next.next.data.ErrorList[my_error_index+1]) / 3
+    #             curr_node.next.data.ErrorList[my_error_index] = average
+    #         curr_node = curr_node.next
+    #         if curr_node == CirList.head:
+    #             break
 
 
-    for i in range(AVE_CONSENSUS_ITERATIONS):
-        LocalAveError(CircularAgentList)
-    print("\nconsensus has been reached\n")
+    # for i in range(AVE_CONSENSUS_ITERATIONS):
+    #     LocalAveError(CircularAgentList)
+    # print("\nconsensus has been reached\n")
 
 
-    def AssignOrientation(CirList): # assign chosen orientation to all agents
-        curr_node = CirList.head
-        while curr_node.next:
-            print("Assinging an orientation for: " + curr_node.next.data.name)
-            index = curr_node.data.name
-            my_orientation = curr_node.data.ErrorList.index(min(curr_node.data.ErrorList))
-            #print (str(index) + 'goal orient' + str(my_orientation))
-            curr_node.data.desired_angle = LetterList[my_orientation]
-            curr_node = curr_node.next
-            if curr_node == CirList.head:
-                break
-    AssignOrientation(CircularAgentList)
+    # def AssignOrientation(CirList): # assign chosen orientation to all agents
+    #     curr_node = CirList.head
+    #     while curr_node.next:
+    #         print("Assinging an orientation for: " + curr_node.next.data.name)
+    #         index = curr_node.data.name
+    #         my_orientation = curr_node.data.ErrorList.index(min(curr_node.data.ErrorList))
+    #         #print (str(index) + 'goal orient' + str(my_orientation))
+    #         curr_node.data.desired_angle = LetterList[my_orientation]
+    #         curr_node = curr_node.next
+    #         if curr_node == CirList.head:
+    #             break
+    # AssignOrientation(CircularAgentList)
 
 
-
-### Ave Con looper - if senses any angle change, then restart consensus ( can read same OR new selected goal shape )
-def AveConLooper():
-    AveCon()
-    LoopyMove()
-    shape = loopy.current_shape
-    while con_on == True:
-        if loopy.current_shape == shape:
-            pass
-        else:
-            sleep(5) #allow 5sec for human to finish interacting
-            AveCon()
-            LoopyMove()
-
-# turn loop on/ off
-con_on = False
-checkbox = tk.Checkbutton(window, text='Loop Consensus', variable= con_on, onvalue= True, offvalue= False, command=AveConLooper())
-checkbox.grid(column = 12, row = 3, columnspan=4)
-
-
-
-''' matrix consensus:
- ###below is for matrix:
+# matrix consensus:
+###below is for matrix:
 
     # make an initial error list for each of 36 goals for each of 36 agents
     def errorM():
@@ -266,7 +213,7 @@ checkbox.grid(column = 12, row = 3, columnspan=4)
     end_time = time()
     print("Algorithm time: " + str(end_time - start_time))
     LoopyMove()
-'''
+
 
     
 # ###Economic Consensus
@@ -424,7 +371,7 @@ ShapeNameEntry.grid(column = 4, row = 0, columnspan=1)
 
 ###Consensus Buttons group (middle)
 
-ControlBtn= tk.Button(window,activebackground='navy blue', bg='#4863A0', fg='white', width=6, height=1, text='Control', command=AveCon)
+ControlBtn= tk.Button(window,activebackground='navy blue', bg='#4863A0', fg='white',width=20, height=1, text='Average Consensus', command=AveCon)
 ControlBtn.grid(column = 12, row = 1, columnspan=4)
 
 ChooseShapeLabel = tk.Label(window, text = 'Choose Shape:', background= 'light blue')

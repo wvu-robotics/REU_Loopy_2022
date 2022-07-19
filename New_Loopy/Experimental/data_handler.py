@@ -63,23 +63,23 @@ DXL_MINIMUM_POSITION_VALUE  = 695
 DXL_MAXIMUM_POSITION_VALUE  = 3405 
 
 
-# port0 = PortHandler(DEVICE0); port0.openPort(); port0.setBaudRate(BAUDRATE)
-# port1 = PortHandler(DEVICE1); port1.openPort(); port1.setBaudRate(BAUDRATE)
+port0 = PortHandler(DEVICE0); port0.openPort(); port0.setBaudRate(BAUDRATE)
+port1 = PortHandler(DEVICE1); port1.openPort(); port1.setBaudRate(BAUDRATE)
 
-# pack0 = Protocol2PacketHandler()
-# pack1 = Protocol2PacketHandler()
+pack0 = Protocol2PacketHandler()
+pack1 = Protocol2PacketHandler()
 
-# group0_read = GroupSyncRead(port0, pack0, ADDR_PRESENT_POSITION, LEN_PRESENT_POSITION)
-# group1_read = GroupSyncRead(port1, pack1, ADDR_PRESENT_POSITION, LEN_PRESENT_POSITION)
+group0_read = GroupSyncRead(port0, pack0, ADDR_PRESENT_POSITION, LEN_PRESENT_POSITION)
+group1_read = GroupSyncRead(port1, pack1, ADDR_PRESENT_POSITION, LEN_PRESENT_POSITION)
 
-# group0_write = GroupSyncWrite(port0, pack0, ADDR_GOAL_POSITION, LEN_GOAL_POSITION)
-# group1_write = GroupSyncWrite(port1, pack1, ADDR_GOAL_POSITION, LEN_GOAL_POSITION)
+group0_write = GroupSyncWrite(port0, pack0, ADDR_GOAL_POSITION, LEN_GOAL_POSITION)
+group1_write = GroupSyncWrite(port1, pack1, ADDR_GOAL_POSITION, LEN_GOAL_POSITION)
 
-# group0_write_torque = GroupSyncWrite(port0, pack0, ADDR_TORQUE_CONTROL, LEN_TORQUE_ENABLE)
-# group1_write_torque = GroupSyncWrite(port1, pack1, ADDR_TORQUE_CONTROL, LEN_TORQUE_ENABLE)
+group0_write_torque = GroupSyncWrite(port0, pack0, ADDR_TORQUE_CONTROL, LEN_TORQUE_ENABLE)
+group1_write_torque = GroupSyncWrite(port1, pack1, ADDR_TORQUE_CONTROL, LEN_TORQUE_ENABLE)
 
-# group0_read_pwm = GroupSyncRead(port0, pack0, ADDR_PRESENT_PWM, LEN_PWM)
-# group1_read_pwm = GroupSyncRead(port1, pack1, ADDR_PRESENT_PWM, LEN_PWM)
+group0_read_pwm = GroupSyncRead(port0, pack0, ADDR_PRESENT_PWM, LEN_PWM)
+group1_read_pwm = GroupSyncRead(port1, pack1, ADDR_PRESENT_PWM, LEN_PWM)
 
 
 # def torque_control(state):
@@ -124,23 +124,23 @@ def torque_control(state):
 
 def collect_positions():
 
-    port0 = PortHandler(DEVICE0); port0.openPort(); port0.setBaudRate(BAUDRATE)
-    port1 = PortHandler(DEVICE1); port1.openPort(); port1.setBaudRate(BAUDRATE)
+    # port0 = PortHandler(DEVICE0); port0.openPort(); port0.setBaudRate(BAUDRATE)
+    # port1 = PortHandler(DEVICE1); port1.openPort(); port1.setBaudRate(BAUDRATE)
 
-    pack0 = Protocol2PacketHandler()
-    pack1 = Protocol2PacketHandler()
+    # pack0 = Protocol2PacketHandler()
+    # pack1 = Protocol2PacketHandler()
 
-    group0_read = GroupSyncRead(port0, pack0, ADDR_PRESENT_POSITION, LEN_PRESENT_POSITION)
-    group1_read = GroupSyncRead(port1, pack1, ADDR_PRESENT_POSITION, LEN_PRESENT_POSITION)
+    # group0_read = GroupSyncRead(port0, pack0, ADDR_PRESENT_POSITION, LEN_PRESENT_POSITION)
+    # group1_read = GroupSyncRead(port1, pack1, ADDR_PRESENT_POSITION, LEN_PRESENT_POSITION)
 
-    group0_write = GroupSyncWrite(port0, pack0, ADDR_GOAL_POSITION, LEN_GOAL_POSITION)
-    group1_write = GroupSyncWrite(port1, pack1, ADDR_GOAL_POSITION, LEN_GOAL_POSITION)
+    # group0_write = GroupSyncWrite(port0, pack0, ADDR_GOAL_POSITION, LEN_GOAL_POSITION)
+    # group1_write = GroupSyncWrite(port1, pack1, ADDR_GOAL_POSITION, LEN_GOAL_POSITION)
 
-    group0_write_torque = GroupSyncWrite(port0, pack0, ADDR_TORQUE_CONTROL, LEN_TORQUE_ENABLE)
-    group1_write_torque = GroupSyncWrite(port1, pack1, ADDR_TORQUE_CONTROL, LEN_TORQUE_ENABLE)
+    # group0_write_torque = GroupSyncWrite(port0, pack0, ADDR_TORQUE_CONTROL, LEN_TORQUE_ENABLE)
+    # group1_write_torque = GroupSyncWrite(port1, pack1, ADDR_TORQUE_CONTROL, LEN_TORQUE_ENABLE)
 
-    group0_read_pwm = GroupSyncRead(port0, pack0, ADDR_PRESENT_PWM, LEN_PWM)
-    group1_read_pwm = GroupSyncRead(port1, pack1, ADDR_PRESENT_PWM, LEN_PWM)
+    # group0_read_pwm = GroupSyncRead(port0, pack0, ADDR_PRESENT_PWM, LEN_PWM)
+    # group1_read_pwm = GroupSyncRead(port1, pack1, ADDR_PRESENT_PWM, LEN_PWM)
 
     for n in range(AGENTS):
         if n < 18:

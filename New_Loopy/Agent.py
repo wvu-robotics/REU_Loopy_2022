@@ -237,47 +237,5 @@ class Agent:
             
             pos = self.get_present_position
             
-    
-#pid functions:
-    def set_p_gain(self, gain):
-        """
-        Sets the p gain of an agent
-        """
-        print("Setting P Gain of agent " + self.name + " to " + str(gain))
-        packet_handler.write1ByteTxRx(self.port_handler, self.id, ADDR_P_GAIN, position)
 
-    def set_i_gain(self, gain):
-        """
-        Sets the i gain of an agent
-        """
-        print("Setting I Gain of agent " + self.name + " to " + str(gain))
-        packet_handler.write1ByteTxRx(self.port_handler, self.id, ADDR_I_GAIN, position)
-
-    def set_d_gain(self, gain):
-        """
-        Sets the d gain of an agent
-        """
-        print("Setting D Gain of agent " + self.name + " to " + str(gain))
-        packet_handler.write1ByteTxRx(self.port_handler, self.id, ADDR_D_GAIN, position)
-
-    def get_p_gain(self):
-        """
-        Gets p gain of an agent
-        """
-        gain = self.packet_handler.read1ByteTxRx(self.port_handler, self.id, ADDR_P_GAIN)
-        return int(gain)
-
-    def get_i_gain(self):
-        """
-        Gets i gain of an agent
-        """
-        gain = self.packet_handler.read1ByteTxRx(self.port_handler, self.id, ADDR_I_GAIN)
-        return int(gain)
-
-    def get_d_gain(self):
-        """
-        Gets d gain of an agent
-        """
-        gain = self.packet_handler.read1ByteTxRx(self.port_handler, self.id, ADDR_D_GAIN)
-        return int(gain)
             

@@ -102,19 +102,4 @@ class Loopy:
         print("Loaded shape: Loopy_" + str(saved_shape) + ".csv" )
         
         
-    #change pid gains:
-    
-    def set_loopy_p_gain(self, gain):
-        for agent in self.agents:
-            agent.set_p_gain(gain)
-        print('p gain is now: ' + str(gain))
 
-    def set_loopy_i_gain(self, gain):
-        for agent in self.agents:
-            agent.set_i_gain(gain)
-        print('i gain is now: ' + str(gain))
-
-    def set_loopy_d_gain(self, gain):
-        for agent in self.agents:
-            agent.set_d_gain(gain)
-        print('d gain is now: ' + str(gain))
