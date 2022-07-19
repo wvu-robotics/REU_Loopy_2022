@@ -1,3 +1,4 @@
+import threading
 from time import sleep, time
 import tkinter as tk
 import Loopy
@@ -12,9 +13,6 @@ UPDATE_LABELS_TIME = 100 # ms
 
 ROW_CIRCLE = 26
 
-P_Gain = 20
-I_Gain = 0
-D_Gain = 0
 
 loopy = Loopy.Loopy(NUMBER_OF_AGENTS)
 
@@ -29,22 +27,24 @@ window.configure(bg="light blue")
 ## agent load labels
 load_labels = []
 def create_load_labels():
+    loads = dataSender.collect_loads()
     for i in range(loopy.agent_count):
-        load_labels.append(tk.Label(window, text=str(loopy.agents[i].get_present_load()).zfill(3), background='light blue',borderwidth=3, relief='groove'))
+        load_labels.append(tk.Label(window, text=str(loads[i]).zfill(3), background='light blue',borderwidth=3, relief='groove'))
         load_labels[i].grid(column=i, row= ROW_CIRCLE + 3)
         
 def update_load_labels():
     print("Updating Load")
+    loads = dataSender.collect_loads()
     for i in range(loopy.agent_count):
-        a = loopy.agents[i].get_present_load()/10
+        a = loads[i]/10
         if a < 1 :
-            a = 1
+            a = 0
         elif a > 999:
             a = 999
         else:
             a = int(a)
         load_labels[i].config(text=str(a).zfill(3), background='light blue',borderwidth=3, relief='groove')
-        # load_labels[i].config(window, text=str(loopy.agents[i].get_present_load()).zfill(3), background='light blue',borderwidth=3, relief='groove')
+
 
 ##agent goal labels
 goal_angles_labels = [] 
@@ -57,20 +57,22 @@ def update_goal_angle_labels():
     print("Updating Goal Angles")
     for i in range(loopy.agent_count):
         goal_angles_labels[i].config(text=str(loopy.agents[i].desired_angle).zfill(3), background='light blue', borderwidth=3, relief='groove')
-        #goal_angles_labels[i].config(tk.Label(window, text=str(loopy.agents[i].desired_angle).zfill(3), background='light blue', borderwidth=3, relief='groove'))
+
 
 ##agent current angle labels
 current_angle_labels = [] 
 def create_current_angle_labels():
+    angles = dataSender.collect_positions()
     for i in range(loopy.agent_count):
-        current_angle_labels.append(tk.Label(window, text=str(loopy.agents[i].get_present_angle()).zfill(3), background='light blue',borderwidth=3, relief='groove'))
+        current_angle_labels.append(tk.Label(window, text=str(angles[i]).zfill(3), background='light blue',borderwidth=3, relief='groove'))
         current_angle_labels[i].grid(column=i, row= ROW_CIRCLE + 7)
 
 def update_current_angle_labels():
+    angles = dataSender.collect_positions()
     print("Updating Current Angles")
     for i in range(loopy.agent_count):
-        current_angle_labels[i].config(text=str(loopy.agents[i].get_present_angle()).zfill(3), background='light blue',borderwidth=3, relief='groove')
-        # current_angle_labels[i].config(tk.Label(window, text=str(loopy.agents[i].get_present_angle()).zfill(3), background='light blue',borderwidth=3, relief='groove'))
+        current_angle_labels[i].config(text=str(angles[i]).zfill(3), background='light blue',borderwidth=3, relief='groove')
+
 
 ##Text above label rows
 TorqueLabel = tk.Label(window, text='Agent Load:', background='light blue')
@@ -216,14 +218,7 @@ def AveCon():
 
 
     
-# ###Economic Consensus
-# def agentErrorSums(agent):
-#     # returns errorList of sums (of len3 error lists' abs)
-#     agentSumList = []
-#     for list in agent.errorList:
-#         agentSumList.append(sum(map(abs, list)))
-#     return agentSumList
-
+#returns list to be bulk written
 def GoalAngles():
     GoalAngles  = []
     for agent in loopy.agents:
@@ -232,67 +227,7 @@ def GoalAngles():
     print("returning the new goal list")
     return GoalAngles
 
-# ''' new version for bulk read/write'''
-# def EconConsensus(LetterList, AnglesList):
-# ## LetterList = list of angles; CirList = circular list of agents; Current Angles list = bulk read list
-# ##calulate error list(of lists) for neighborhood of agent.next
-#     #first assign each angle to the corresponding agent in order to utilize the circular list
-#     for agent in AgentList:
-#         agent.angle = AnglesList[AgentList.index(agent)]
 
-#     #then find error for each neighborhood(neighborhhod of nextAgent) for each orientation
-#     curr_node = CircularAgentList.head
-#     while curr_node.next:
-#         agent = curr_node.data
-#         nextAgent = curr_node.next.data
-#         nextnextAgent = curr_node.next.next.data
-#         nextAgent.errorList = []
-#         for i in range(len(LetterList)):
-#             leftError = agent.angle - LetterList(i-1)
-#             selfError = nextAgent.angle - LetterList(i)
-#             rightError = nextnextAgent.angle - LetterList(i+1)
-#             CurrentErrorList = [leftError, selfError, rightError]
-#             nextAgent.errorList.append(CurrentErrorList)
-
-#         curr_node = curr_node.next
-#         if curr_node == CircularAgentList.head:
-#             break
-
-#         #now assign movements based on these errors
-#         curr_node = CircularAgentList.head
-#         while curr_node.next:
-#             agent = curr_node.data
-#             nextAgent = curr_node.next.data
-#             NeighborhoodIndex = AgentList.index(nextAgent)
-#             nextnextAgent = curr_node.next.next.data
-#             NeighborhoodBeliefsList = [min(agentErrorSums(agent)),min(agentErrorSums(nextAgent)),min(agentErrorSums(nextnextAgent))]
-#             MiddleMoveStep = nextAgent.errorList[agentErrorSums(nextAgent).index(min(agentErrorSums(nextAgent)))][1]  # the error of middle agent w/ belief
-#             if NeighborhoodBeliefsList.index(max(NeighborhoodBeliefsList)) == 1:
-#                 pass #no movement this timestep if middle agent has most error (let it be moved by other neighborhoods)
-#             elif MiddleMoveStep == 0:
-#                 #move neighbor with least error with your belief to goal and other neighbor +/-
-#                 MiddleBelief = nextAgent.errorList[agentErrorSums(nextAgent).index(min(agentErrorSums(nextAgent)))]
-#                 if max(MiddleBelief) == 0:
-#                     MoveStep = nextAgent.errorList[agentErrorSums(nextAgent).index(min(agentErrorSums(nextAgent)))][2]
-#                     agent.desired_angle = agent.get_present_angle + MoveStep
-#                     nextnextAgent.desired_angle = nextnextAgent.get_present_angle - MoveStep
-#                 elif max(MiddleBelief) == 2:
-#                     MoveStep = nextAgent.errorList[agentErrorSums(nextAgent).index(min(agentErrorSums(nextAgent)))][0]
-#                     agent.desired_angle = agent.get_present_angle - MoveStep
-#                     nextnextAgent.desired_angle = nextnextAgent.get_present_angle + MoveStep
-#             else:
-#                 #middle agent moves to belief angle, neighbor with belief with most error moves opposite                
-#                 nextAgent.desired_angle = nextAgent.get_present_angle - MiddleMoveStep
-#                 if NeighborhoodBeliefsList.index(max(NeighborhoodBeliefsList)) == 0:
-#                     agent.desired_angle = agent.get_present_angle + MiddleMoveStep
-#                 elif NeighborhoodBeliefsList.index(max(NeighborhoodBeliefsList)) == 2:
-#                     nextnextAgent.desired_angle = nextnextAgent.get_present_angle + MiddleMoveStep
-#                 curr_node = curr_node.next
-#                 return GoalAngles()
-#                 ##remove below 2 lines to run continuously, porbably should also add a delay
-#             if curr_node == CircularAgentList.head:
-#                     break
-##
 
 ###Circular List###
 class Node(object):
@@ -306,14 +241,6 @@ class CircularList(object):
     def __init__(self, head = None, tail = None):
         self.head = head
         self.tail = tail
-
-    def traverse(self):
-        curr_node = self.head
-        while curr_node.next:
-            print(curr_node.data.name)
-            curr_node = curr_node.next
-            if curr_node == self.head:
-                break
 
     def insert_end(self, data):
         new_node = Node(data)
@@ -337,21 +264,21 @@ for agent in loopy.agents:
 #######
 
 
-# def update_labels():
+def update_labels():
 
-#     create_load_labels()
-#     create_goal_angle_labels()
-#     create_current_angle_labels()
+    create_load_labels()
+    create_goal_angle_labels()
+    create_current_angle_labels()
 
-#     while True:
-#         update_load_labels()
-#         update_goal_angle_labels()
-#         update_current_angle_labels()
-#         sleep(.2)
+    while True:
+        update_load_labels()
+        update_goal_angle_labels()
+        update_current_angle_labels()
+        sleep(.2)
 
 
 '''
-Below: the buttons in the top half of the gui are made & 'gridded'/ shown
+Below: the buttons in the top half of the gui are made & 'gridded'(shown)
 '''
 ###Save Shape Buttons Group (left)
 
@@ -396,26 +323,6 @@ def LoopyMove():
     # except Exception:
     #     LoopyMove()
 
-
-
-
-# ## Old Loopy Move:
-# def LoopyMove():
-#     curr_node = CircularAgentList.head
-#     while curr_node.next:
-#         present_angle = curr_node.data.get_present_angle()
-#         if (present_angle - int(curr_node.data.desired_angle)) <= -16:
-#             present_angle += 16
-#         elif (present_angle - int(curr_node.data.desired_angle)) >= 16:
-#             present_angle -= 16
-#         else:
-#             present_angle -= present_angle - int(curr_node.data.desired_angle)
-#         curr_node.data.set_goal_angle(present_angle)
-#         curr_node = curr_node.next
-#         if curr_node == CircularAgentList.head:
-#             break
-# 
-
 MoveBtn = tk.Button(window,activebackground='navy blue', bg='#4863A0', fg='white', width=6, height=1, text='Move',command=LoopyMove)
 MoveBtn.grid(row=2, column=12, columnspan=4)
 
@@ -454,10 +361,10 @@ SetButton.grid(column=24, row=2, columnspan=4, pady=10)
 
 def torque_off():
     loopy.torque_off_all_agents()
-    update_lights()
+    #update_lights()
 def torque_on():
     loopy.torque_on_all_agents()
-    update_lights()
+    #update_lights()
 
 torque_on_btn= tk.Button(window,activebackground='navy blue', bg='#4863A0', fg='white', width=8, height=1, text='Torque On')
 torque_on_btn.grid(column=10, row=5, columnspan=4)
@@ -465,10 +372,11 @@ torque_on_btn.grid(column=10, row=5, columnspan=4)
 torque_off_btn = tk.Button(window,activebackground='navy blue', bg='#4863A0', fg='white', width=8, height=1, text='Torque Off')
 torque_off_btn.grid(column = 14, row = 5, columnspan=4)
 
-# update_labels_thread = Thread(target= update_labels)
-# update_labels_thread.start()
+###
+update_labels_thread = threading.Thread(target= update_labels)
+update_labels_thread.start()
 
-# window.protocol( "WM_DELETE_WINDOW", loopy.torque_off_all_agents() )
+###
 window.mainloop()
 
 

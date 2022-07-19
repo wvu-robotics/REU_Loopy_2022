@@ -122,6 +122,31 @@ def torque_control(state):
             print( "Agent" + str(n) + " " + packet_hand.getRxPacketError(error_result))
 
 
+def collect_loads():
+    for n in range(AGENTS):
+        if n < 18:
+            group0_read.removeParam(n)
+            group0_read.addParam(n)
+        else:
+            group1_read.removeParam(n)
+            group1_read.addParam(n)
+
+    group0_read.txRxPacket()
+    group1_read.txRxPacket()
+
+    loads = []
+    for n in range(AGENTS):
+        if n < 18:
+            loads.append(group0_read.getData(n, ADDR_PRESENT_LOAD, 2))
+        else:
+            loads.append(group1_read.getData(n, ADDR_PRESENT_LOAD, 2))
+
+    group0_read.clearParam()
+    group1_read.clearParam()
+    return loads
+
+
+
 def collect_positions():
 
     # port0 = PortHandler(DEVICE0); port0.openPort(); port0.setBaudRate(BAUDRATE)
