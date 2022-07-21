@@ -24,6 +24,11 @@ window.geometry = "1080x350"
 window.configure(bg="light blue")
 
 
+#agent number labels
+for i in range(36):
+    my_NumberLabel = tk.Label(window, text=str(i), background='light blue')
+    my_NumberLabel.grid(column=i, row= ROW_CIRCLE + 1 )
+
 ## agent load labels
 load_labels = []
 def create_load_labels():
@@ -410,8 +415,8 @@ torque_off_btn = tk.Button(window,activebackground='navy blue', bg='#4863A0', fg
 torque_off_btn.grid(column = 14, row = 5, columnspan=4)
 
 ###
-#update_labels_thread = threading.Thread(target= update_labels)
-#update_labels_thread.start()
+update_labels_thread = threading.Thread(target= update_labels)
+update_labels_thread.start()
 
 ###
 window.mainloop()
