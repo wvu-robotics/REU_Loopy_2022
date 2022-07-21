@@ -80,6 +80,9 @@ def update_current_angle_labels():
 
 
 ##Text above label rows
+NumberLabel = tk.Label(window, text='Agent ID:', background='light blue')
+NumberLabel.grid(columnspan=3, row= ROW_CIRCLE )
+
 TorqueLabel = tk.Label(window, text='Agent Load:', background='light blue')
 TorqueLabel.grid(columnspan=3, row= ROW_CIRCLE + 2 )
 
