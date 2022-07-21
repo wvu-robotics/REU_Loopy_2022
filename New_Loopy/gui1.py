@@ -274,7 +274,7 @@ ShapeNameEntry = tk.Entry(window, textvariable=ShapeChosen, width=5)
 ShapeNameEntry.grid(column = 4, row = 0, columnspan=1)
 
 def store_shape():
-    loopy.store_current_shape(ShapeChosen)
+    dataSender.save_current_shape(ShapeChosen.get())
 
 SaveShapeBtn = tk.Button(window,activebackground='navy blue', bg='#4863A0', fg='white', width=10, height=1, text='Store Shape',command=store_shape)
 SaveShapeBtn.grid(column = 2, row = 1, columnspan=4)
