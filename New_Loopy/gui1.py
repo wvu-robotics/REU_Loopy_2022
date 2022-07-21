@@ -4,7 +4,7 @@ import tkinter as tk
 import Loopy
 import Experimental.data_handler as dataSender
 import numpy as np
-
+from scipy import signal
 
 AVE_CONSENSUS_ITERATIONS = 500
 NUMBER_OF_AGENTS = 36
@@ -16,17 +16,11 @@ ROW_CIRCLE = 26
 
 loopy = Loopy.Loopy(NUMBER_OF_AGENTS)
 
-p = 100
-i = 1 
-d = 1 
 
-# dataSender.write_to_address(dataSender.ADDR_POSITION_P_GAIN,dataSender.LEN_POSITION_PID_GAIN, p)
-# dataSender.write_to_address(dataSender.ADDR_POSITION_I_GAIN,dataSender.LEN_POSITION_PID_GAIN, i)
-# dataSender.write_to_address(dataSender.ADDR_POSITION_D_GAIN,dataSender.LEN_POSITION_PID_GAIN, d)
 window = tk.Tk()
+###window.title doesnt work, needs to be configure or something
 window.title = "Loopy GUI"
 window.geometry = "1080x350"
-window.state("zoomed")
 window.configure(bg="light blue")
 
 
@@ -91,11 +85,34 @@ CurrentAngleLabel = tk.Label(window, text='Current Angle:', background='light bl
 CurrentAngleLabel.grid(columnspan=3, row= ROW_CIRCLE + 6)
 
 
-######Ave Consensus
-       
-def AveCon():
-    start_time = time()
+def findOrientationArray(initErrorList):
+        """    
+        Returns a array corrisponding to the oriention based on consesus
 
+        Parameters:
+            goalList(List) - Desired list of angles to move to 
+            currentList(List) - Current List of Angles that the agents are in
+        Returns:
+            OrientationArray - The ouput array to act on based on consesus
+        """
+        N = len(initErrorList)
+        kernal = [[1, 0, 0],[0, 1, 0],[0, 0, 1]]
+        errorList = [[[0 for j in range(N)] for j in range(N)] for n in range(3)]
+        errorList[1] = initErrorList
+        errorList[2] = signal.convolve2d(errorList[1],kernal,"same","wrap")
+        for n in range(1,N//2): 
+            errorList[0] = errorList[1]
+            errorList[1] = errorList[2]
+            errorList[2] = signal.convolve2d(errorList[1],kernal,"same","wrap") - np.add(errorList[1],errorList[0])
+        if (N%2 == 0):
+            errorList[2] -= np.subtract(errorList[2], errorList[1])//2
+            
+        return errorList[2]
+
+######Ave Consensus
+def AveCon():
+   
+    start_time = time()
     # current_shape = dataSender.read_from_address(dataSender.ADDR_PRESENT_POSITION, dataSender.LEN_PRESENT_POSITION)
     current_shape = dataSender.collect_positions()
 
@@ -158,69 +175,82 @@ def AveCon():
 ###below is for matrix:
 
     # make an initial error list for each of 36 goals for each of 36 agents
-    def errorM():
-        # agents error lists are error for each orientation (where their goal for orientation i is (i + id))
-        for agent in loopy.agents:
-            agent.ErrorList = []
-            for i in range(len(LetterList)): # i is orientation, j is goal for that orientation
-                j = i+agent.id
-                if j > 35:
-                    error = abs(current_shape[agent.id] - LetterList[j-36])
-                else:
-                    error = abs(current_shape[agent.id] - LetterList[j])
-                agent.ErrorList.append(error)
-    errorM()
+    # def errorM():
+    #     # agents error lists are error for each orientation (where their goal for orientation i is (i + id))
+    #     for agent in loopy.agents:
+    #         agent.ErrorList = []
+    #         for i in range(len(LetterList)): # i is orientation, j is goal for that orientation
+    #             j = i+agent.id
+    #             if j > 35:
+    #                 error = abs(current_shape[agent.id] - LetterList[j-36])
+    #             else:
+    #                 error = abs(current_shape[agent.id] - LetterList[j])
+    #             agent.ErrorList.append(error)
+    # errorM()
 
     ##make matrix of each agent' error list (each error list is a row): (36 agents x 36 orientations)
     agents = loopy.agents
-    A = np.array([[agents[0].ErrorList],[agents[1].ErrorList],[agents[2].ErrorList],[agents[3].ErrorList],[agents[4].ErrorList],
-                [agents[5].ErrorList],[agents[6].ErrorList],[agents[7].ErrorList],[agents[8].ErrorList],[agents[9].ErrorList],
-                [agents[10].ErrorList],[agents[11].ErrorList],[agents[12].ErrorList],[agents[13].ErrorList],[agents[14].ErrorList],
-                [agents[15].ErrorList],[agents[16].ErrorList],[agents[17].ErrorList],[agents[18].ErrorList],[agents[19].ErrorList],
-                [agents[20].ErrorList],[agents[21].ErrorList],[agents[22].ErrorList],[agents[23].ErrorList],[agents[24].ErrorList],
-                [agents[25].ErrorList],[agents[26].ErrorList],[agents[27].ErrorList],[agents[28].ErrorList],[agents[29].ErrorList],
-                [agents[30].ErrorList],[agents[31].ErrorList],[agents[32].ErrorList],[agents[33].ErrorList],[agents[34].ErrorList],
-                [agents[35].ErrorList]], dtype=int)
-    # average the agent's error list values
-    #for each agent (each row), average with rows above/below (shifted by +/- 1) !!!!PROBLEM!!!
-    def average():
-        for i in range(len(A)):
-            if i == 0:
-                prevRow = A[-1 ].tolist()
-                currRow = A[i ].tolist()
-                nextRow = A[i + 1 ].tolist()
-            elif i == 35:
-                prevRow = A[i - 1 ].tolist()
-                currRow = A[i ].tolist()
-                nextRow = A[0 ].tolist()
-            else:
-                prevRow  = A[i-1].tolist()
-                currRow = A[i].tolist()
-                nextRow = A[i+1].tolist()
-            #print(str(currRow))
-            temp = np.array([prevRow, currRow, nextRow], dtype=int)
-            temp = temp.sum(axis=0)
-            temp = temp/3
-            A[i] = temp
+
+    
+    
+    errorList =[[] for i in range(36)]
+    for i in range(36):
+        errorList[i] = agents[i].ErrorList
+    A = findOrientationArray(errorList)
 
 
-    for i in range(500):
-        average()
-    print("consensus has been reached")
+    # A = np.array([[agents[0].ErrorList],[agents[1].ErrorList],[agents[2].ErrorList],[agents[3].ErrorList],[agents[4].ErrorList],
+    #             [agents[5].ErrorList],[agents[6].ErrorList],[agents[7].ErrorList],[agents[8].ErrorList],[agents[9].ErrorList],
+    #             [agents[10].ErrorList],[agents[11].ErrorList],[agents[12].ErrorList],[agents[13].ErrorList],[agents[14].ErrorList],
+    #             [agents[15].ErrorList],[agents[16].ErrorList],[agents[17].ErrorList],[agents[18].ErrorList],[agents[19].ErrorList],
+    #             [agents[20].ErrorList],[agents[21].ErrorList],[agents[22].ErrorList],[agents[23].ErrorList],[agents[24].ErrorList],
+    #             [agents[25].ErrorList],[agents[26].ErrorList],[agents[27].ErrorList],[agents[28].ErrorList],[agents[29].ErrorList],
+    #             [agents[30].ErrorList],[agents[31].ErrorList],[agents[32].ErrorList],[agents[33].ErrorList],[agents[34].ErrorList],
+    #             [agents[35].ErrorList]], dtype=int)
+    # # average the agent's error list values
+    # #for each agent (each row), average with rows above/below (shifted by +/- 1) !!!!PROBLEM!!!
+    # def average():
+    #     for i in range(len(A)):
+    #         if i == 0:
+    #             prevRow = A[-1 ].tolist()
+    #             currRow = A[i ].tolist()
+    #             nextRow = A[i + 1 ].tolist()
+    #         elif i == 35:
+    #             prevRow = A[i - 1 ].tolist()
+    #             currRow = A[i ].tolist()
+    #             nextRow = A[0 ].tolist()
+    #         else:
+    #             prevRow  = A[i-1].tolist()
+    #             currRow = A[i].tolist()
+    #             nextRow = A[i+1].tolist()
+    #         #print(str(currRow))
+    #         temp = np.array([prevRow, currRow, nextRow], dtype=int)
+    #         temp = temp.sum(axis=0)
+    #         temp = temp/3
+    #         A[i] = temp
+    
+
+    # for i in range(500):
+    #     average()
+    # print("consensus has been reached")
 
 #print/ assign chosen orientation for each agent
     for i in range(loopy.agent_count):
         row = A[i].tolist()
-        Ochoice = row[0].index(np.amin(row))
+        Ochoice = row.index(np.amin(row))
         print( loopy.agents[i].name + " goal is " + str((Ochoice)) + " with position value: ")
-        goal = Ochoice + agents[i].id
+        goal = Ochoice
         if goal > 35:
             goal = goal - 36
         agents[i].desired_angle = LetterList[goal]
         print( str(loopy.agents[i].desired_angle) + "\n")
+
     end_time = time()
-    print("Algorithm time: " + str(end_time - start_time))
-    LoopyMove()
+    print("Alg time: \n")
+    print(end_time - start_time)
+    print(GoalAngles())
+    print(A)
+    #LoopyMove()
 
 
     
@@ -231,6 +261,7 @@ def GoalAngles():
         print("adding goal positions to a list")
         GoalAngles.append(agent.desired_angle)
     print("returning the new goal list")
+
     return GoalAngles
 
 
@@ -379,8 +410,8 @@ torque_off_btn = tk.Button(window,activebackground='navy blue', bg='#4863A0', fg
 torque_off_btn.grid(column = 14, row = 5, columnspan=4)
 
 ###
-# update_labels_thread = threading.Thread(target= update_labels)
-# update_labels_thread.start()
+#update_labels_thread = threading.Thread(target= update_labels)
+#update_labels_thread.start()
 
 ###
 window.mainloop()

@@ -40,11 +40,7 @@ class Agent:
     def __init__(self, id):
         self.name = "agent" + str(id)
         self.id = id
-        # self.packet_handler = Protocol2PacketHandler()
-        # self.port_handler = self.get_port(); self.open_port()
         self.desired_angle = "000"
-        self.torque_on_off = False
-        self.process = Process()
         self.goal_shape = [] 
         self.errorList = []
 

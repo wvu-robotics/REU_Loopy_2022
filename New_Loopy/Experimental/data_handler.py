@@ -63,8 +63,8 @@ DXL_MINIMUM_POSITION_VALUE  = 695
 DXL_MAXIMUM_POSITION_VALUE  = 3405 
 
 
-port0 = PortHandler(DEVICE0); port0.openPort(); port0.setBaudRate(BAUDRATE)
-port1 = PortHandler(DEVICE1); port1.openPort(); port1.setBaudRate(BAUDRATE)
+port0 = PortHandler(DEVICE0); port0.setBaudRate(BAUDRATE)
+port1 = PortHandler(DEVICE1); port1.setBaudRate(BAUDRATE)
 
 pack0 = Protocol2PacketHandler()
 pack1 = Protocol2PacketHandler()
@@ -81,7 +81,40 @@ group1_write_torque = GroupSyncWrite(port1, pack1, ADDR_TORQUE_CONTROL, LEN_TORQ
 group0_read_pwm = GroupSyncRead(port0, pack0, ADDR_PRESENT_PWM, LEN_PWM)
 group1_read_pwm = GroupSyncRead(port1, pack1, ADDR_PRESENT_PWM, LEN_PWM)
 
+def write_to_address(address, length, value):
 
+    group0_write.start_address = address
+    group1_write.start_address = address
+
+    group0_write.data_length = length
+    group1_write.data_length = length
+
+
+    port0.openPort()
+    port1.openPort()
+
+    new_value = int.to_bytes(value, length, 'little')
+
+    for n in range(AGENTS):
+        if n < 18:
+            group0_write.addParam(n, new_value)
+        else:
+            group1_write.addParam(n, new_value)
+
+    group0_write.txPacket()
+    group1_write.txPacket()    
+
+    group0_write.clearParam()
+    group1_write.clearParam()
+    port0.closePort()
+    port1.closePort()
+
+# write_to_address(ADDR_POSITION_P_GAIN, LEN_POSITION_PID_GAIN, 200)
+# write_to_address(ADDR_TORQUE_CONTROL, LEN_TORQUE_ENABLE, TORQUE_DISABLE)
+
+
+# write_to_address(ADDR_POSITION_I_GAIN,LEN_POSITION_PID_GAIN, 5)
+# write_to_address(ADDR_POSITION_D_GAIN,LEN_POSITION_PID_GAIN, 0)
 # def torque_control(state):
 #     for n in range(AGENTS):
 #         if n < 18:
@@ -446,7 +479,8 @@ def write_to_address(address, length, value):
     port0.closePort()
     port1.closePort()
 
-
+# write_to_address(ADDR_POSITION_I_GAIN,LEN_POSITION_PID_GAIN, 0)
+# set_positions(create_shape_list("A"))
 # def read_from_address(address, length):
 
 #     port0 = PortHandler(DEVICE0); port0.openPort(); port0.setBaudRate(BAUDRATE)
@@ -484,10 +518,7 @@ def write_to_address(address, length, value):
 
 # pack0.write4ByteTxRx(port0, 0, 84, 1000)
 
-# print( str(read_from_address(ADDR_PRESENT_POSITION, LEN_PRESENT_POSITION)))
-# write_to_address(ADDR_POSITION_P_GAIN, LEN_POSITION_PID_GAIN, 10)
-# write_to_address(ADDR_POSITION_I_GAIN, LEN_POSITION_PID_GAIN, 200)
-# write_to_address(ADDR_POSITION_D_GAIN, LEN_POSITION_PID_GAIN, 0)
+
 
 # write_to_address(100, 200)
 # torque_control(TORQUE_DISABLE)
