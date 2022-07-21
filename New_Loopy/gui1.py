@@ -324,18 +324,18 @@ Below: the buttons in the top half of the gui are made & 'gridded'(shown)
 '''
 ###Save Shape Buttons Group (left)
 
-def store_shape():
-    loopy.store_current_shape("L")
-
-SaveShapeBtn = tk.Button(window,activebackground='navy blue', bg='#4863A0', fg='white', width=10, height=1, text='Store Shape',command=store_shape)
-SaveShapeBtn.grid(column = 2, row = 1, columnspan=4)
-
 ShapeNameLabel= tk.Label(text = 'Enter Shape Name:', background = 'light blue')
 ShapeNameLabel.grid(column=0, row=0, columnspan=4)
 
 ShapeChosen = tk.StringVar()   
 ShapeNameEntry = tk.Entry(window, textvariable=ShapeChosen, width=5)
 ShapeNameEntry.grid(column = 4, row = 0, columnspan=1)
+
+def store_shape():
+    loopy.store_current_shape(ShapeChosen)
+
+SaveShapeBtn = tk.Button(window,activebackground='navy blue', bg='#4863A0', fg='white', width=10, height=1, text='Store Shape',command=store_shape)
+SaveShapeBtn.grid(column = 2, row = 1, columnspan=4)
 
 
 ###Consensus Buttons group (middle)
@@ -402,11 +402,11 @@ SetButton.grid(column=24, row=2, columnspan=4, pady=10)
 ###Torque Buttons Group (bottom middle)
 
 def torque_off():
-    loopy.torque_off_all_agents()
-    #update_lights()
+    dataSender.torque_control(dataSender.TORQUE_DISABLE)
+   
 def torque_on():
-    loopy.torque_on_all_agents()
-    #update_lights()
+    dataSender.torque_control(dataSender.TORQUE_ENABLE)
+    
 
 torque_on_btn= tk.Button(window,activebackground='navy blue', bg='#4863A0', fg='white', width=8, height=1, text='Torque On')
 torque_on_btn.grid(column=10, row=5, columnspan=4)
