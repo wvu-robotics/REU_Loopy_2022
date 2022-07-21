@@ -124,8 +124,6 @@ def AveCon():
     chosen_shape = LetterClicked.get()
 
     LetterList = dataSender.create_shape_list(chosen_shape)
-    # # LetterList = [2064,2030,2091,2851,2139,2839,2118,2080,2053,1186,1974,2080,943,1903,1967,2055,2047,2003,2063,1969,2070,1967,995,1941,2036,2041,2029,2042,2074,2080,1959,1958,878,2040,2063,1170]
-
 
     #make an initial error list for each of 36 goals for each of 36 agents
     def error():
@@ -136,6 +134,32 @@ def AveCon():
                     agent.ErrorList.append(error)
     error()
 
+    ##make matrix of each agent' error list (each error list is a row): (36 agents x 36 orientations)
+    agents = loopy.agents
+
+    errorList = [[] for i in range(36)]
+    for i in range(36):
+        errorList[i] = agents[i].ErrorList
+    A = findOrientationArray(errorList)
+
+    # print/ assign chosen orientation for each agent
+    for i in range(loopy.agent_count):
+        row = A[i].tolist()
+        choice = row.index(np.amin(row))
+        print(loopy.agents[i].name + " goal is " + str((choice)) + " with position value: ")
+        goal = choice
+        if goal > 35:
+            goal = goal - 36
+        agents[i].desired_angle = LetterList[goal]
+        print(str(loopy.agents[i].desired_angle) + "\n")
+
+    end_time = time()
+    print("Alg time: \n")
+    print(end_time - start_time)
+    print(GoalAngles())
+    print(A)
+
+###old/ slow consensus:
     # #average the agent's error list values
     # def LocalAveError(CirList):
     #     curr_node = CirList.head
@@ -156,11 +180,9 @@ def AveCon():
     #         if curr_node == CirList.head:
     #             break
 
-
     # for i in range(AVE_CONSENSUS_ITERATIONS):
     #     LocalAveError(CircularAgentList)
     # print("\nconsensus has been reached\n")
-
 
     # def AssignOrientation(CirList): # assign chosen orientation to all agents
     #     curr_node = CirList.head
@@ -176,90 +198,8 @@ def AveCon():
     # AssignOrientation(CircularAgentList)
 
 
-# matrix consensus:
-###below is for matrix:
 
-    # make an initial error list for each of 36 goals for each of 36 agents
-    # def errorM():
-    #     # agents error lists are error for each orientation (where their goal for orientation i is (i + id))
-    #     for agent in loopy.agents:
-    #         agent.ErrorList = []
-    #         for i in range(len(LetterList)): # i is orientation, j is goal for that orientation
-    #             j = i+agent.id
-    #             if j > 35:
-    #                 error = abs(current_shape[agent.id] - LetterList[j-36])
-    #             else:
-    #                 error = abs(current_shape[agent.id] - LetterList[j])
-    #             agent.ErrorList.append(error)
-    # errorM()
-
-    ##make matrix of each agent' error list (each error list is a row): (36 agents x 36 orientations)
-    agents = loopy.agents
-
-    
-    
-    errorList =[[] for i in range(36)]
-    for i in range(36):
-        errorList[i] = agents[i].ErrorList
-    A = findOrientationArray(errorList)
-
-
-    # A = np.array([[agents[0].ErrorList],[agents[1].ErrorList],[agents[2].ErrorList],[agents[3].ErrorList],[agents[4].ErrorList],
-    #             [agents[5].ErrorList],[agents[6].ErrorList],[agents[7].ErrorList],[agents[8].ErrorList],[agents[9].ErrorList],
-    #             [agents[10].ErrorList],[agents[11].ErrorList],[agents[12].ErrorList],[agents[13].ErrorList],[agents[14].ErrorList],
-    #             [agents[15].ErrorList],[agents[16].ErrorList],[agents[17].ErrorList],[agents[18].ErrorList],[agents[19].ErrorList],
-    #             [agents[20].ErrorList],[agents[21].ErrorList],[agents[22].ErrorList],[agents[23].ErrorList],[agents[24].ErrorList],
-    #             [agents[25].ErrorList],[agents[26].ErrorList],[agents[27].ErrorList],[agents[28].ErrorList],[agents[29].ErrorList],
-    #             [agents[30].ErrorList],[agents[31].ErrorList],[agents[32].ErrorList],[agents[33].ErrorList],[agents[34].ErrorList],
-    #             [agents[35].ErrorList]], dtype=int)
-    # # average the agent's error list values
-    # #for each agent (each row), average with rows above/below (shifted by +/- 1) !!!!PROBLEM!!!
-    # def average():
-    #     for i in range(len(A)):
-    #         if i == 0:
-    #             prevRow = A[-1 ].tolist()
-    #             currRow = A[i ].tolist()
-    #             nextRow = A[i + 1 ].tolist()
-    #         elif i == 35:
-    #             prevRow = A[i - 1 ].tolist()
-    #             currRow = A[i ].tolist()
-    #             nextRow = A[0 ].tolist()
-    #         else:
-    #             prevRow  = A[i-1].tolist()
-    #             currRow = A[i].tolist()
-    #             nextRow = A[i+1].tolist()
-    #         #print(str(currRow))
-    #         temp = np.array([prevRow, currRow, nextRow], dtype=int)
-    #         temp = temp.sum(axis=0)
-    #         temp = temp/3
-    #         A[i] = temp
-    
-
-    # for i in range(500):
-    #     average()
-    # print("consensus has been reached")
-
-#print/ assign chosen orientation for each agent
-    for i in range(loopy.agent_count):
-        row = A[i].tolist()
-        Ochoice = row.index(np.amin(row))
-        print( loopy.agents[i].name + " goal is " + str((Ochoice)) + " with position value: ")
-        goal = Ochoice
-        if goal > 35:
-            goal = goal - 36
-        agents[i].desired_angle = LetterList[goal]
-        print( str(loopy.agents[i].desired_angle) + "\n")
-
-    end_time = time()
-    print("Alg time: \n")
-    print(end_time - start_time)
-    print(GoalAngles())
-    print(A)
-    #LoopyMove()
-
-
-    
-#returns list to be bulk written
+#returns a list of goal positions to be bulk written from agent.desired_angle property
 def GoalAngles():
     GoalAngles  = []
     for agent in loopy.agents:
@@ -268,7 +208,6 @@ def GoalAngles():
     print("returning the new goal list")
 
     return GoalAngles
-
 
 
 ###Circular List###
