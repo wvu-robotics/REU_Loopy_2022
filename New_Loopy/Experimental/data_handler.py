@@ -306,7 +306,7 @@ def create_shape_list_param(shape_name):
     """
     returned_shape = [] 
     # print("Loading shape: Loopy_" + str(shape_name) + ".csv" )
-    loaded_shape = open( ".Loopy_Shapes/Loopy_" + str(shape_name) + ".csv", "r")
+    loaded_shape = open( "Loopy_Shapes/Loopy_" + str(shape_name) + ".csv", "r")
    
     for id in range(AGENTS):
         current_line = loaded_shape.readline().split(",")
@@ -330,7 +330,7 @@ def create_shape_list(shape_name):
     """
     returned_shape = [] 
     # print("Loading shape: Loopy_" + str(shape_name) + ".csv" )
-    loaded_shape = open( "New_Loopy/Loopy_Shapes/Loopy_" + str(shape_name) + ".csv", "r")
+    loaded_shape = open( "Loopy_Shapes/Loopy_" + str(shape_name) + ".csv", "r")
    
     for id in range(AGENTS):
         current_line = loaded_shape.readline().split(",")

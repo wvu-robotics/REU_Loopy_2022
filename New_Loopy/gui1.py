@@ -69,14 +69,14 @@ current_angle_labels = []
 def create_current_angle_labels():
     angles = dataSender.collect_positions()
     for i in range(loopy.agent_count):
-        current_angle_labels.append(tk.Label(window, text=str(angles[i]).zfill(3), background='light blue',borderwidth=3, relief='groove'))
+        current_angle_labels.append(tk.Label(window, text=str(int(angles[i] / 4096 * 360)).zfill(3), background='light blue',borderwidth=3, relief='groove'))
         current_angle_labels[i].grid(column=i, row= ROW_CIRCLE + 7)
 
 def update_current_angle_labels():
     angles = dataSender.collect_positions()
     print("Updating Current Angles")
     for i in range(loopy.agent_count):
-        current_angle_labels[i].config(text=str(angles[i]).zfill(3), background='light blue',borderwidth=3, relief='groove')
+        current_angle_labels[i].config(text=str(int(angles[i] / 4096 * 360)).zfill(3), background='light blue',borderwidth=3, relief='groove')
 
 
 ##Text above label rows
@@ -340,7 +340,7 @@ SaveShapeBtn.grid(column = 2, row = 1, columnspan=4)
 
 ###Consensus Buttons group (middle)
 
-ControlBtn= tk.Button(window,activebackground='navy blue', bg='#4863A0', fg='white',width=20, height=1, text='Average Consensus', command=AveCon)
+ControlBtn= tk.Button(window,activebackground='navy blue', bg='#4863A0', fg='white',width=14, height=1, text='Average Consensus', command=AveCon)
 ControlBtn.grid(column = 12, row = 1, columnspan=4)
 
 ChooseShapeLabel = tk.Label(window, text = 'Choose Shape:', background= 'light blue')
@@ -408,10 +408,10 @@ def torque_on():
     dataSender.torque_control(dataSender.TORQUE_ENABLE)
     
 
-torque_on_btn= tk.Button(window,activebackground='navy blue', bg='#4863A0', fg='white', width=8, height=1, text='Torque On')
+torque_on_btn= tk.Button(window,activebackground='navy blue', bg='#4863A0', fg='white', width=8, height=1, text='Torque On', command=torque_on)
 torque_on_btn.grid(column=10, row=5, columnspan=4)
 
-torque_off_btn = tk.Button(window,activebackground='navy blue', bg='#4863A0', fg='white', width=8, height=1, text='Torque Off')
+torque_off_btn = tk.Button(window,activebackground='navy blue', bg='#4863A0', fg='white', width=8, height=1, text='Torque Off', command=torque_off)
 torque_off_btn.grid(column = 14, row = 5, columnspan=4)
 
 ###
