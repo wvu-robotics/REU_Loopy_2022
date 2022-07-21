@@ -55,13 +55,13 @@ def update_load_labels():
 goal_angles_labels = [] 
 def create_goal_angle_labels():
     for i in range(loopy.agent_count):
-        goal_angles_labels.append(tk.Label(window, text=str(loopy.agents[i].desired_angle).zfill(3), background='light blue', borderwidth=3, relief='groove'))
+        goal_angles_labels.append(tk.Label(window, text=str(int(int(loopy.agents[i].desired_angle) / 4096 * 360) ).zfill(3), background='light blue', borderwidth=3, relief='groove'))
         goal_angles_labels[i].grid(column=i, row= ROW_CIRCLE + 5)
 
 def update_goal_angle_labels():
     print("Updating Goal Angles")
     for i in range(loopy.agent_count):
-        goal_angles_labels[i].config(text=str(loopy.agents[i].desired_angle).zfill(3), background='light blue', borderwidth=3, relief='groove')
+        goal_angles_labels[i].config(text=str(int(int(loopy.agents[i].desired_angle) / 4096 * 360)).zfill(3), background='light blue', borderwidth=3, relief='groove')
 
 
 ##agent current angle labels
