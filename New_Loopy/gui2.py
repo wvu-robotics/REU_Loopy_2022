@@ -108,114 +108,84 @@ CurrentAngleLabel = tk.Label(window, text='Current Angle:', background='light bl
 CurrentAngleLabel.grid(columnspan=3, row=ROW_CIRCLE + 6)
 
 
-def findOrientationArray(initErrorList):
-    """
-    Returns a array corrisponding to the oriention based on consesus
-
-    Parameters:
-        goalList(List) - Desired list of angles to move to
-        currentList(List) - Current List of Angles that the agents are in
-    Returns:
-        OrientationArray - The ouput array to act on based on consesus
-    """
-    N = len(initErrorList)
-    kernal = [[1, 0, 0], [0, 1, 0], [0, 0, 1]]
-    errorList = [[[0 for j in range(N)] for j in range(N)] for n in range(3)]
-    errorList[1] = initErrorList
-    errorList[2] = signal.convolve2d(errorList[1], kernal, "same", "wrap")
-    for n in range(1, N // 2):
-        errorList[0] = errorList[1]
-        errorList[1] = errorList[2]
-        errorList[2] = signal.convolve2d(errorList[1], kernal, "same", "wrap") - np.add(errorList[1], errorList[0])
-    if (N % 2 == 0):
-        errorList[2] -= np.subtract(errorList[2], errorList[1]) // 2
-
-    return errorList[2]
-
 
 ######Ave Consensus
 def AveCon():
     start_time = time()
     # current_shape = dataSender.read_from_address(dataSender.ADDR_PRESENT_POSITION, dataSender.LEN_PRESENT_POSITION)
-    current_shape = dataSender.collect_positions()
 
-    chosen_shape = LetterClicked.get()
+    LetterList = dataSender.create_shape_list(LetterClicked.get())
 
-    LetterList = dataSender.create_shape_list(chosen_shape)
-
-    # make an initial error list for each of 36 goals for each of 36 agents
+    # make an initial error list for each of 36 goals for each of 36 agents to be averaged & save a copy for comparison
     def error():
         for agent in loopy.agents:
             agent.ErrorList = []
+            agent.PrevErrorList = []
             for j in LetterList:
-                error = abs(current_shape[agent.id] - j)
+                error = abs(dataSender.collect_positions()[agent.id] - j)
                 agent.ErrorList.append(error)
-
+                agent.PrevErrorList.append(error)
     error()
 
-    ##make matrix of each agent' error list (each error list is a row): (36 agents x 36 orientations)
-    agents = loopy.agents
-
-    errorList = [[] for i in range(36)]
-    for i in range(36):
-        errorList[i] = agents[i].ErrorList
-    A = findOrientationArray(errorList)
-
-    # print/ assign chosen orientation for each agent
-    for i in range(loopy.agent_count):
-        row = A[i].tolist()
-        choice = row.index(np.amin(row))
-        print(loopy.agents[i].name + " goal is " + str((choice)) + " with position value: ")
-        goal = choice
-        if goal > 35:
-            goal = goal - 36
-        agents[i].desired_angle = LetterList[goal]
-        print(str(loopy.agents[i].desired_angle) + "\n")
-
-    end_time = time()
-    print("Alg time: \n")
-    print(end_time - start_time)
-    print(GoalAngles())
-    print(A)
+    def current_error_list(agent_id):
+        #returns list of the current errors of Loopy for an agent
+        for agent in loopy.agents:
+            elist = []
+            for j in LetterList:
+                error = abs(dataSender.collect_positions()[agent_id] - j)
+                elist.append(error)
+        return elist
 
 
-###old/ slow consensus:
-# #average the agent's error list values
-# def LocalAveError(CirList):
-#     curr_node = CirList.head
-#     while curr_node.next:
-#         print("Calculating average local error for: " + curr_node.next.data.name)
-#         for j in curr_node.next.data.ErrorList:
-#             my_error_index = curr_node.next.data.ErrorList.index(j)
-#             if my_error_index == 0:
-#                 average = (curr_node.data.ErrorList[35] + curr_node.next.data.ErrorList[my_error_index] +
-#                            curr_node.next.next.data.ErrorList[my_error_index + 1]) / 3
-#             elif my_error_index == 35:
-#                 average = (curr_node.data.ErrorList[my_error_index - 1] + curr_node.next.data.ErrorList[my_error_index] +
-#                            curr_node.next.next.data.ErrorList[0]) / 3
-#             elif my_error_index >0 and my_error_index <35:
-#                 average = (curr_node.data.ErrorList[my_error_index-1] + curr_node.next.data.ErrorList[my_error_index] + curr_node.next.next.data.ErrorList[my_error_index+1]) / 3
-#             curr_node.next.data.ErrorList[my_error_index] = average
-#         curr_node = curr_node.next
-#         if curr_node == CirList.head:
-#             break
+    #average the agent's error list values to converge on an orientation
+    def LocalAveError(CirList):
+        curr_node = CirList.head
+        while curr_node.next:
+            #first, get current errors for this agent (curr node next)
+            current_errors = current_error_list(curr_node.next.data)
 
-# for i in range(AVE_CONSENSUS_ITERATIONS):
-#     LocalAveError(CircularAgentList)
-# print("\nconsensus has been reached\n")
 
-# def AssignOrientation(CirList): # assign chosen orientation to all agents
-#     curr_node = CirList.head
-#     while curr_node.next:
-#         print("Assinging an orientation for: " + curr_node.next.data.name)
-#         index = curr_node.data.name
-#         my_orientation = curr_node.data.ErrorList.index(min(curr_node.data.ErrorList))
-#         #print (str(index) + 'goal orient' + str(my_orientation))
-#         curr_node.data.desired_angle = LetterList[my_orientation]
-#         curr_node = curr_node.next
-#         if curr_node == CirList.head:
-#             break
-# AssignOrientation(CircularAgentList)
+            for j in curr_node.next.data.ErrorList:
+                index = curr_node.next.data.ErrorList.index(j) #get index of error we are working with
+
+                # find change in error (neg if error decreased, pos if increased)
+                change_in_error = current_errors.index(index) - curr_node.next.data.PrevErrorList[index]
+                print(str(curr_node.next.data.name) + ' change in error is: ' + str(change_in_error))
+
+                my_error_index = curr_node.next.data.ErrorList.index(j)
+                if my_error_index == 0:
+                    average = (curr_node.data.ErrorList[35] + curr_node.next.data.ErrorList[my_error_index] +
+                               curr_node.next.next.data.ErrorList[my_error_index + 1] + change_in_error) / 3
+                elif my_error_index == 35:
+                    average = (curr_node.data.ErrorList[my_error_index - 1] + curr_node.next.data.ErrorList[my_error_index] +
+                               curr_node.next.next.data.ErrorList[0] + change_in_error) / 3
+                elif my_error_index >0 and my_error_index <35:
+                    average = (curr_node.data.ErrorList[my_error_index-1] + curr_node.next.data.ErrorList[my_error_index] +
+                               curr_node.next.next.data.ErrorList[my_error_index+1] + change_in_error) / 3
+                curr_node.next.data.ErrorList[my_error_index] = average
+
+            curr_node = curr_node.next
+            if curr_node == CirList.head:
+                break
+
+    for i in range(AVE_CONSENSUS_ITERATIONS):
+        LocalAveError(CircularAgentList)
+    print("\nconsensus has been reached\n")
+
+    #choose orientation and assign goals
+    def AssignOrientation(CirList):
+        curr_node = CirList.head
+        while curr_node.next:
+            agent = curr_node.data.name
+            my_choice = curr_node.data.ErrorList.index(min(curr_node.data.ErrorList))
+            print(str(agent) + 'goal orient' + str(my_choice))
+            curr_node.data.desired_angle = LetterList[my_choice]
+            curr_node = curr_node.next
+            if curr_node == CirList.head:
+                break
+    AssignOrientation(CircularAgentList)
+
+
 
 
 # returns a list of goal positions to be bulk written from agent.desired_angle property
@@ -318,12 +288,10 @@ LetterDrop.grid(column=14, row=0, columnspan=4)
 # new Loopy move for bulk write:
 
 def LoopyMove():
-    # try:
+#move to assigned goals
     dataSender.torque_control(dataSender.TORQUE_ENABLE)
     sleep(1)
     dataSender.set_positions(GoalAngles())
-    # sleep(1)
-    # dataSender.torque_control(dataSender.TORQUE_DISABLE)
 
 
 # except Exception:
