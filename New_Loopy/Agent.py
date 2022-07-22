@@ -45,6 +45,7 @@ class Agent:
         self.errorList = []
 
 
+
     def __str__(self):
         """
         Overrides Python's print function for objects

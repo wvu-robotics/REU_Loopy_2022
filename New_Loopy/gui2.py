@@ -31,14 +31,12 @@ for i in range(36):
 ## agent load labels
 load_labels = []
 
-
 def create_load_labels():
     loads = dataSender.collect_loads()
     for i in range(loopy.agent_count):
         load_labels.append(
             tk.Label(window, text=str(loads[i]).zfill(3), background='light blue', borderwidth=3, relief='groove'))
         load_labels[i].grid(column=i, row=ROW_CIRCLE + 3)
-
 
 def update_load_labels():
     print("Updating Load")
@@ -57,14 +55,12 @@ def update_load_labels():
 ##agent goal labels
 goal_angles_labels = []
 
-
 def create_goal_angle_labels():
     for i in range(loopy.agent_count):
         goal_angles_labels.append(
             tk.Label(window, text=str(int(int(loopy.agents[i].desired_angle) / 4096 * 360)).zfill(3),
                      background='light blue', borderwidth=3, relief='groove'))
         goal_angles_labels[i].grid(column=i, row=ROW_CIRCLE + 5)
-
 
 def update_goal_angle_labels():
     print("Updating Goal Angles")
@@ -76,7 +72,6 @@ def update_goal_angle_labels():
 ##agent current angle labels
 current_angle_labels = []
 
-
 def create_current_angle_labels():
     angles = dataSender.collect_positions()
     for i in range(loopy.agent_count):
@@ -84,7 +79,6 @@ def create_current_angle_labels():
             tk.Label(window, text=str(int(angles[i] / 4096 * 360)).zfill(3), background='light blue', borderwidth=3,
                      relief='groove'))
         current_angle_labels[i].grid(column=i, row=ROW_CIRCLE + 7)
-
 
 def update_current_angle_labels():
     angles = dataSender.collect_positions()
@@ -118,40 +112,48 @@ def AveCon():
 
     # make an initial error list for each of 36 goals for each of 36 agents to be averaged & save a copy for comparison
     def error():
+
         for agent in loopy.agents:
-            agent.ErrorList = []
-            agent.PrevErrorList = []
+            errorList = []
+            current_pos = dataSender.collect_positions()
             for j in LetterList:
-                error = abs(dataSender.collect_positions()[agent.id] - j)
-                agent.ErrorList.append(error)
-                agent.PrevErrorList.append(error)
+                error = abs(current_pos[agent.id] - j)
+                errorList.append(error)
+            agent.ErrorList = errorList
+            agent.PrevErrorList = errorList
     error()
 
     def current_error_list(agent_id):
         #returns list of the current errors of Loopy for an agent
         for agent in loopy.agents:
             elist = []
+            current_pos = dataSender.collect_positions()
             for j in LetterList:
-                error = abs(dataSender.collect_positions()[agent_id] - j)
+                error = abs(current_pos[agent_id] - j)
                 elist.append(error)
         return elist
+
 
 
     #average the agent's error list values to converge on an orientation
     def LocalAveError(CirList):
         curr_node = CirList.head
         while curr_node.next:
-            #first, get current errors for this agent (curr node next)
-            current_errors = current_error_list(curr_node.next.data)
-
-
+            print('averaging error for ' + str(curr_node.next.data.name))
             for j in curr_node.next.data.ErrorList:
-                index = curr_node.next.data.ErrorList.index(j) #get index of error we are working with
+                index = curr_node.next.data.ErrorList.index(j) #index of error we are working with
 
+                # first, get current errors for this agent (curr node next)
+                current_errors = current_error_list(curr_node.next.data.id)
                 # find change in error (neg if error decreased, pos if increased)
-                change_in_error = current_errors.index(index) - curr_node.next.data.PrevErrorList[index]
-                print(str(curr_node.next.data.name) + ' change in error is: ' + str(change_in_error))
+                change_in_error = current_errors[index] - curr_node.next.data.PrevErrorList[index]
+                print(str(curr_node.next.data.name) + ' change in error for goal ' +str(index) + ' is: ' + str(change_in_error))
 
+                #check and replace prev error list if needed
+                if change_in_error < 1:
+                    curr_node.next.data.PrevErrorList = current_errors
+
+                #do the averaging with forcing term change_in_error/3
                 my_error_index = curr_node.next.data.ErrorList.index(j)
                 if my_error_index == 0:
                     average = (curr_node.data.ErrorList[35] + curr_node.next.data.ErrorList[my_error_index] +
@@ -178,7 +180,7 @@ def AveCon():
         while curr_node.next:
             agent = curr_node.data.name
             my_choice = curr_node.data.ErrorList.index(min(curr_node.data.ErrorList))
-            print(str(agent) + 'goal orient' + str(my_choice))
+            print(str(agent) + 'goal choice is ' + str(my_choice))
             curr_node.data.desired_angle = LetterList[my_choice]
             curr_node = curr_node.next
             if curr_node == CirList.head:
